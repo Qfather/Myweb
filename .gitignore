@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+instance/
+*.db
+
+# 上传文件 - 忽略具体文件但保留目录
+static/uploads/*
+static/models/*
+!static/uploads/.gitkeep
+!static/models/.gitkeep
+
+# 环境
+.env
+.venv
+venv/

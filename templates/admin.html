@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 个人3D主页</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f;
+            --card: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.08);
+            --accent: #6c5ce7;
+            --text: #fff;
+            --text2: rgba(255,255,255,0.6);
+            --danger: #e74c3c;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        /* ====== 登录页 ====== */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        #login-screen h1 { font-size: 24px; margin-bottom: 24px; }
+        #login-screen input {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+            color: var(--text);
+            font-size: 16px;
+            width: 260px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        #login-screen input:focus { border-color: var(--accent); }
+        #login-screen button {
+            margin-top: 16px;
+            padding: 10px 32px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        #login-screen button:hover { opacity: 0.85; }
+        #login-error { color: var(--danger); font-size: 13px; margin-top: 12px; display: none; }
+        /* ====== 管理面板 ====== */
+        #admin-panel { display: none; padding: 20px; max-width: 800px; margin: 0 auto; }
+        #admin-panel.active { display: block; }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .admin-header h1 { font-size: 22px; }
+        .logout-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text2);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { color: var(--danger); border-color: var(--danger); }
+        /* 标签切换 */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 4px;
+        }
+        .admin-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .admin-tab.active { background: var(--accent); color: #fff; }
+        /* 表单 */
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group input:focus,
+        .form-group textarea:focus { border-color: var(--accent); }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        /* 列表 */
+        .item-list { display: flex; flex-direction: column; gap: 8px; }
+        .item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .item-card .info { flex: 1; }
+        .item-card .info h3 { font-size: 14px; margin-bottom: 2px; }
+        .item-card .info p { font-size: 12px; color: var(--text2); }
+        .item-card .actions { display: flex; gap: 8px; }
+        .item-card .actions button { font-size: 12px; }
+        .success-msg {
+            padding: 10px 16px;
+            background: rgba(46,204,113,0.15);
+            border: 1px solid rgba(46,204,113,0.3);
+            border-radius: 10px;
+            color: #2ecc71;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .success-msg.show { display: block; }
+        .add-form { display: none; margin-top: 16px; padding: 16px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
+        .add-form.show { display: block; }
+        .add-form .form-actions { display: flex; gap: 8px; margin-top: 12px; }
+        /* select 下拉选项修复 */
+        select option { background: #1a1a2e; color: #fff; }
+        /* Quill 暗色适配 */
+        .ql-container { font-size:15px; font-family:inherit; }
+        .ql-editor { min-height:240px; }
+        .ql-toolbar { background: var(--card); border-color: var(--border) !important; border-radius:8px 8px 0 0; }
+        .ql-container { border-color: var(--border) !important; border-radius:0 0 8px 8px; }
+        .ql-toolbar button .ql-stroke { stroke: var(--text2); }
+        .ql-toolbar button:hover .ql-stroke { stroke: var(--accent); }
+        .ql-toolbar button .ql-fill { fill: var(--text2); }
+        .ql-toolbar button:hover .ql-fill { fill: var(--accent); }
+        .ql-toolbar .ql-active .ql-stroke { stroke: var(--accent) !important; }
+        .ql-toolbar .ql-active .ql-fill { fill: var(--accent) !important; }
+    </style>
+</head>
+<body>
+
+<!-- ====== 登录 ====== -->
+<div id="login-screen">
+    <h1>🔐 管理后台</h1>
+    <input type="password" id="password-input" placeholder="请输入管理员密码" autocomplete="current-password">
+    <button onclick="login()">登录</button>
+    <div id="login-error">密码错误，请重试</div>
+</div>
+
+<!-- ====== 管理面板 ====== -->
+<div id="admin-panel">
+    <div class="admin-header">
+        <h1>⚙️ 站点管理</h1>
+        <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchTab('profile')">个人资料</button>
+        <button class="admin-tab" onclick="switchTab('works')">作品管理</button>
+        <button class="admin-tab" onclick="switchTab('favorites')">个人经历</button>
+        <button class="admin-tab" onclick="switchTab('cameras')">GLB管理</button>
+    </div>
+
+    <div id="success-msg" class="success-msg"></div>
+
+    <!-- 个人资料 -->
+    <div id="section-profile" class="admin-section active">
+        <div class="form-group">
+            <label>头像</label>
+            <input id="edit-avatar" type="text" placeholder="/static/uploads/avatar.png">
+            <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="document.getElementById('avatar-upload').click()">上传头像</button>
+            <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadFile(this,'edit-avatar')">
+        </div>
+        <div class="form-group">
+            <label>昵称</label>
+            <input id="edit-nickname" type="text">
+        </div>
+        <div class="form-group">
+            <label>简介</label>
+            <textarea id="edit-bio"></textarea>
+        </div>
+        <div class="form-group">
+            <label>邮箱</label>
+            <input id="edit-email" type="email">
+        </div>
+        <div class="form-group">
+            <label>社交平台</label>
+            <div id="social-editor"></div>
+            <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addSocialRow()">+ 添加</button>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">保存个人资料</button>
+    </div>
+
+    <!-- 作品管理 -->
+    <div id="section-works" class="admin-section">
+        <button class="btn btn-primary" onclick="toggleForm('works-form')">+ 添加作品</button>
+        <div id="works-form" class="add-form">
+            <div class="form-group">
+                <label>标题</label>
+                <input id="work-title" type="text">
+            </div>
+            <div class="form-group">
+                <label>描述</label>
+                <textarea id="work-desc"></textarea>
+            </div>
+            <div class="form-group">
+                <label>链接</label>
+                <input id="work-url" type="text">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="addWork()">保存</button>
+                <button class="btn" style="background:var(--card);color:var(--text2)" onclick="toggleForm('works-form')">取消</button>
+            </div>
+        </div>
+        <div id="works-list" class="item-list" style="margin-top:16px"></div>
+    </div>
+
+    <!-- 个人经历 -->
+    <div id="section-favorites" class="admin-section">
+        <button class="btn btn-primary" onclick="toggleForm('favorites-form')">+ 添加经历</button>
+        <div id="favorites-form" class="add-form">
+            <h4 id="fav-form-title" style="font-size:14px;margin-bottom:12px">➕ 添加经历</h4>
+            <div id="quill-editor" style="min-height:260px;color:#1a1a2e;background:#fff;border-radius:8px"></div>
+            <div class="form-actions" style="margin-top:12px">
+                <button id="fav-save-btn" class="btn btn-primary" onclick="saveFav()">保存</button>
+                <button id="fav-cancel-btn" class="btn" style="background:var(--card);color:var(--text2);display:none" onclick="cancelFavEdit()">取消</button>
+            </div>
+        </div>
+        <div id="favorites-list" class="item-list" style="margin-top:16px"></div>
+    </div>
+
+    <!-- GLB管理 -->
+    <div id="section-cameras" class="admin-section">
+        <div id="hdr-container" style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;position:relative;overflow:hidden;aspect-ratio:2/1;background-size:cover;background-position:center;transition:background-image 0.4s ease">
+            <div style="position:absolute;top:0;left:0;padding:12px 16px;z-index:2">
+                <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.5);background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:6px;backdrop-filter:blur(4px)">🌄 HDR 贴图</span>
+            </div>
+            <div style="position:absolute;top:0;right:0;display:flex;gap:8px;padding:12px;z-index:2">
+                <select id="hdr-select" onchange="onHDRSelect()"
+                    style="padding:8px 12px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(26,26,46,0.7);color:#fff;font-size:13px;outline:none;min-width:140px;backdrop-filter:blur(8px)">
+                    <option value="">-- 选择 HDR --</option>
+                </select>
+                <button class="btn btn-primary" style="padding:8px 16px;font-size:13px;backdrop-filter:blur(8px)" onclick="applyHDR()">应用</button>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:0 4px">
+            <span style="font-size:12px;color:var(--text2);min-width:40px">☀️亮度</span>
+            <input type="range" id="hdr-brightness" min="20" max="200" value="100" oninput="onBrightnessChange(this)"
+                style="flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer">
+            <span id="brightness-value" style="font-size:12px;color:var(--text2);min-width:32px;text-align:right">1.0</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+            <h3 style="font-size:15px;margin-bottom:10px">📦 上传 GLB 模型</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input id="edit-model-path" type="text" placeholder="/static/uploads/model.glb" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px;outline:none">
+                <button class="btn btn-primary" onclick="document.getElementById('model-upload').click()">上传</button>
+                <input type="file" id="model-upload" accept=".glb,.gltf" style="display:none" onchange="uploadFile(this,'edit-model-path')">
+                <button class="btn btn-primary" onclick="saveModelPath()">应用</button>
+            </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">
+            设置每个镜头对应的动画。上传GLB后自动读取镜头数量和动画名称。
+        </p>
+        <div id="cameras-list" class="item-list"></div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="saveCameras()">💾 保存映射</button>
+    </div>
+</div>
+
+<script>
+// ====== 工具函数 ======
+function showMsg(msg, isError = false) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.color = isError ? '#e74c3c' : '#2ecc71';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+async function api(method, url, body) {
+    const opts = { method, credentials: 'include', headers: {} };
+    if (body) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(body);
+    }
+    const resp = await fetch(url, opts);
+    return resp.json();
+}
+
+function stripHtml(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html;
+    return d.textContent || d.innerText || '';
+}
+
+function toggleForm(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+    if (el.classList.contains('show') && id === 'favorites-form') initQuill();
+    else if (!el.classList.contains('show')) cancelFavEdit();
+}
+
+// ====== 登录 ======
+async function login() {
+    const pwd = document.getElementById('password-input').value;
+    const res = await api('POST', '/admin/login', { password: pwd });
+    if (res.code === 0) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-panel').classList.add('active');
+        loadAll();
+    } else {
+        document.getElementById('login-error').style.display = 'block';
+    }
+}
+
+async function logout() {
+    await api('POST', '/admin/logout');
+    window.location.href = '/';
+}
+
+// ====== 检查登录状态 ======
+(async function() {
+    const res = await api('GET', '/admin/check');
+    if (res.logged_in) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-panel').classList.add('active');
+        loadAll();
+    }
+})();
+
+// ====== 标签切换 ======
+function switchTab(name) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.admin-tab[onclick*="'${name}'"]`).classList.add('active');
+    document.getElementById(`section-${name}`).classList.add('active');
+}
+
+// ====== 加载所有数据 ======
+async function loadAll() {
+    loadProfile();
+    loadWorks();
+    loadFavorites();
+    loadCameras();
+}
+
+// ====== 个人资料 ======
+let socialData = [];
+
+async function loadProfile() {
+    const res = await api('GET', '/api/profile');
+    if (res.code === 0) {
+        document.getElementById('edit-nickname').value = res.data.nickname || '';
+        document.getElementById('edit-bio').value = res.data.bio || '';
+        document.getElementById('edit-email').value = res.data.email || '';
+        document.getElementById('edit-avatar').value = res.data.avatar || '';
+        // 解析社交数据
+        const raw = res.data.social_links;
+        let parsed = [];
+        if (typeof raw === 'string') { try { parsed = JSON.parse(raw); } catch { parsed = getDefaultSocial(); } }
+        else if (Array.isArray(raw)) parsed = raw;
+        else parsed = getDefaultSocial();
+        // 兼容旧路径
+        socialData = parsed.map(item => ({
+            ...item,
+            icon: (item.icon||'').replace('/static/icons/','/assets/icons/'),
+            qrcode: (item.qrcode||'').replace('/static/icons/','/assets/icons/'),
+        }));
+    }
+    renderSocialEditor();
+    const cfg = await api('GET', '/api/config');
+    if (cfg.code === 0 && cfg.data?.model_path) {
+        document.getElementById('edit-model-path').value = cfg.data.model_path;
+    }
+}
+
+async function saveProfile() {
+    const data = {
+        nickname: document.getElementById('edit-nickname').value,
+        bio: document.getElementById('edit-bio').value,
+        email: document.getElementById('edit-email').value,
+        social_links: JSON.stringify(socialData),
+    };
+    const res = await api('PUT', '/admin/profile', data);
+    if (res.code === 0) {
+        await api('PUT', '/admin/config', { model_path: document.getElementById('edit-model-path').value });
+        showMsg('个人资料已保存！刷新主页查看效果');
+    }
+}
+
+// ====== 社交编辑器 ======
+// 可用平台列表（从 icons 目录生成）
+const SOCIAL_PLATFORMS = [
+    { name:'微信', file:'微信.png' },
+    { name:'GitHub', file:'github.png' },
+    { name:'哔哩哔哩', file:'哔哩哔哩.png' },
+    { name:'小红书', file:'小红书.png' },
+    { name:'新浪微博', file:'新浪.png' },
+    { name:'腾讯QQ', file:'腾讯QQ.png' },
+    { name:'抖音', file:'tiktok.png' },
+    { name:'Twitter/X', file:'TwitterX.png' },
+    { name:'LinkedIn', file:'linkedin.png' },
+    { name:'Behance', file:'behance.png' },
+    { name:'YouTube', file:'youtube.png' },
+];
+const ICON_PATH = '/assets/icons/';
+
+function platformOptions(selected) {
+    return SOCIAL_PLATFORMS.map(p => 
+        `<option value="${p.file}" ${p.name===selected?'selected':''}>${p.name}</option>`
+    ).join('');
+}
+
+function getPlatformNameByFile(file) {
+    const p = SOCIAL_PLATFORMS.find(x => x.file === file);
+    return p ? p.name : file.replace('.png','');
+}
+
+function getDefaultSocial() {
+    return [{ name:'微信', icon:ICON_PATH+'微信.png', url:'', type:'wechat', qrcode:'' }];
+}
+
+function renderSocialEditor() {
+    const el = document.getElementById('social-editor');
+    el.innerHTML = socialData.map((item, i) => {
+        const isWx = item.type === 'wechat' || item.name === '微信';
+        return `
+        <div class="item-card" style="margin-bottom:6px;display:flex;align-items:center;gap:8px;padding:10px 14px">
+            ${isWx ? `
+                <span style="font-weight:600;font-size:13px;min-width:100px;width:100px">微信</span>
+                <input value="${item.url||''}" placeholder="微信号或链接" onchange="socialData[${i}].url=this.value"
+                    style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:12px;outline:none">
+                <input type="file" accept="image/*" style="display:none" id="qr-${i}" onchange="uploadQRCode(${i},this)">
+                <button class="btn btn-sm" style="background:#2ecc71;color:#fff;padding:6px 14px;font-size:14px;line-height:1" onclick="document.getElementById('qr-${i}').click()" title="上传二维码">↑</button>
+                ${item.qrcode ? `<img src="${item.qrcode}" style="width:22px;height:22px;border-radius:3px">` : ''}
+            ` : `
+                <select onchange="onSocialChange(${i},this)"
+                    style="width:100px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:12px;outline:none">
+                    <option value="">-- 选择 --</option>
+                    ${SOCIAL_PLATFORMS.filter(p => p.name !== '微信').map(p => 
+                        `<option value="${p.file}" ${p.name===item.name?'selected':''}>${p.name}</option>`
+                    ).join('')}
+                </select>
+                <input value="${item.url||''}" placeholder="https://..." onchange="socialData[${i}].url=this.value"
+                    style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:12px;outline:none">
+                <button class="btn btn-danger btn-sm" onclick="socialData.splice(${i},1);renderSocialEditor()">✕</button>
+            `}
+        </div>`;
+    }).join('');
+}
+
+function onSocialChange(i, sel) {
+    const file = sel.value;
+    if (!file) return;
+    const name = getPlatformNameByFile(file);
+    socialData[i].name = name;
+    socialData[i].icon = ICON_PATH + file;
+    socialData[i].file = file;
+    socialData[i].type = 'link';
+    renderSocialEditor();
+}
+
+function addSocialRow() {
+    socialData.push({ name:'', icon:'', file:'', url:'', type:'link', qrcode:'' });
+    renderSocialEditor();
+}
+
+async function uploadSocialIcon(i, input) {
+    const file = input.files[0];
+    if (!file) return;
+    const fd = new FormData(); fd.append('file', file);
+    const r = await (await fetch('/admin/upload', { method:'POST', credentials:'include', body:fd })).json();
+    if (r.code === 0) { socialData[i].icon = r.data.url; renderSocialEditor(); }
+}
+
+async function uploadQRCode(i, input) {
+    const file = input.files[0];
+    if (!file) return;
+    const fd = new FormData(); fd.append('file', file);
+    const r = await (await fetch('/admin/upload', { method:'POST', credentials:'include', body:fd })).json();
+    if (r.code === 0) { socialData[i].qrcode = r.data.url; renderSocialEditor(); }
+}
+
+// ====== 文件上传 ======
+async function uploadFile(input, targetId) {
+    const file = input.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const resp = await fetch('/admin/upload', { method: 'POST', credentials: 'include', body: formData });
+    const res = await resp.json();
+    if (res.code === 0) {
+        document.getElementById(targetId).value = res.data.url;
+        showMsg('上传成功');
+    } else {
+        showMsg('上传失败: ' + res.message, true);
+    }
+}
+
+async function saveModelPath() {
+    const path = document.getElementById('edit-model-path').value;
+    if (!path) { showMsg('请先上传GLB文件', true); return; }
+    const res = await api('PUT', '/admin/config', { model_path: path });
+    if (res.code === 0) showMsg('模型已应用！刷新主页查看');
+    else showMsg('保存失败', true);
+}
+
+// ====== 作品管理 ======
+async function loadWorks() {
+    const res = await api('GET', '/api/works');
+    const list = document.getElementById('works-list');
+    if (res.code === 0 && res.data.length > 0) {
+        list.innerHTML = res.data.map(w => `
+            <div class="item-card">
+                <div class="info">
+                    <h3>${w.title}</h3>
+                    <p>${w.description || '暂无描述'}</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-danger btn-sm" onclick="deleteWork(${w.id})">删除</button>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">暂无作品</div>';
+    }
+}
+
+async function addWork() {
+    const data = {
+        title: document.getElementById('work-title').value,
+        description: document.getElementById('work-desc').value,
+        url: document.getElementById('work-url').value,
+    };
+    const res = await api('POST', '/admin/works', data);
+    if (res.code === 0) {
+        showMsg('作品已添加');
+        document.getElementById('work-title').value = '';
+        document.getElementById('work-desc').value = '';
+        document.getElementById('work-url').value = '';
+        document.getElementById('works-form').classList.remove('show');
+        loadWorks();
+    }
+}
+
+async function deleteWork(id) {
+    if (!confirm('确定删除该作品？')) return;
+    const res = await api('DELETE', `/admin/works/${id}`);
+    if (res.code === 0) {
+        showMsg('已删除');
+        loadWorks();
+    }
+}
+
+// ====== 收藏管理 ======
+async function loadFavorites() {
+    const res = await api('GET', '/api/favorites');
+    const list = document.getElementById('favorites-list');
+    if (res.code === 0 && res.data.length > 0) {
+        list.innerHTML = res.data.map(f => `
+            <div class="item-card">
+                <div class="info">
+                    <h3>${f.title}</h3>
+                    <p>${stripHtml(f.description || '暂无描述').substring(0,100)}</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-sm" style="background:var(--accent);color:#fff" onclick="editFavorite(${f.id})">编辑</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteFavorite(${f.id})">删除</button>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">暂无经历，添加后将作为主页滚动文本</div>';
+    }
+}
+
+let editingId = null;
+
+function editFavorite(id) {
+    api('GET', '/api/favorites').then(res => {
+        if (res.code !== 0) return;
+        const item = res.data.find(f => f.id === id);
+        if (!item) return;
+        editingId = id;
+        initQuill();
+        // 延迟一帧等 Quill 初始化完成再设内容
+        requestAnimationFrame(() => {
+            quill.root.innerHTML = item.description || '<h1></h1><p></p>';
+        });
+        document.getElementById('fav-form-title').textContent = '✏️ 编辑经历';
+        document.getElementById('fav-save-btn').textContent = '更新';
+        document.getElementById('fav-cancel-btn').style.display = 'inline-block';
+        document.getElementById('favorites-form').classList.add('show');
+    });
+}
+
+function cancelFavEdit() {
+    editingId = null;
+    document.getElementById('fav-form-title').textContent = '➕ 添加经历';
+    document.getElementById('fav-save-btn').textContent = '保存';
+    document.getElementById('fav-cancel-btn').style.display = 'none';
+    document.getElementById('favorites-form').classList.remove('show');
+    if (quill) { quill = null; }
+}
+
+async function saveFav() {
+    const html = quill ? quill.root.innerHTML : '';
+    const title = quill ? (quill.getText().trim().split('\n')[0] || '未命名') : '未命名';
+    const data = { title, description: html, url: '' };
+    let res;
+    if (editingId) { res = await api('PUT', `/admin/favorites/${editingId}`, data); }
+    else { res = await api('POST', '/admin/favorites', data); }
+    if (res.code === 0) {
+        showMsg(editingId ? '经历已更新' : '经历已添加');
+        cancelFavEdit();
+        loadFavorites();
+    }
+}
+
+async function deleteFavorite(id) {
+    if (!confirm('确定删除该收藏？')) return;
+    const res = await api('DELETE', `/admin/favorites/${id}`);
+    if (res.code === 0) {
+        showMsg('已删除');
+        loadFavorites();
+    }
+}
+
+// ====== HDR 环境贴图 ======
+function showHDRPreview(filename) {
+    const container = document.getElementById('hdr-container');
+    const url = filename.match(/\.(png|jpg|jpeg)$/i) ? '/assets/hdr/' + filename : '/api/hdr-preview/' + filename;
+    container.style.backgroundImage = 'url(' + url + ')';
+}
+
+function onBrightnessChange(el) {
+    const val = el.value / 100;
+    document.getElementById('brightness-value').textContent = val.toFixed(1);
+    document.getElementById('hdr-container').style.filter = 'brightness(' + val + ')';
+}
+
+function onHDRSelect() {
+    const v = document.getElementById('hdr-select').value;
+    if (v) showHDRPreview(v);
+    else document.getElementById('hdr-container').style.backgroundImage = '';
+}
+
+async function applyHDR() {
+    const v = document.getElementById('hdr-select').value;
+    if (!v) { showMsg('请选择HDR文件', true); return; }
+    const brightness = document.getElementById('hdr-brightness').value / 100;
+    const path = '/assets/hdr/' + v;
+    const res = await api('PUT', '/admin/config', { hdr_path: path, hdr_brightness: String(brightness) });
+    if (res.code === 0) showMsg('HDR已应用！刷新主页查看');
+    else showMsg('保存失败', true);
+}
+
+// ====== 镜头↔动画映射管理 ======
+let _cameras = [];
+let _animNames = [];
+
+async function loadCameras() {
+    const cfg = await api('GET', '/api/config');
+    const [hdrList] = await Promise.all([
+        api('GET', '/api/hdr-list'),
+    ]);
+    // 加载亮度
+    const brightness = cfg.code === 0 && cfg.data?.hdr_brightness ? parseFloat(cfg.data.hdr_brightness) : 1.0;
+    document.getElementById('hdr-brightness').value = brightness * 100;
+    document.getElementById('brightness-value').textContent = brightness.toFixed(1);
+    document.getElementById('hdr-container').style.filter = 'brightness(' + brightness + ')';
+    // 填充HDR下拉
+    const sel = document.getElementById('hdr-select');
+    if (hdrList.code === 0) {
+        const saved = cfg.code === 0 && cfg.data?.hdr_path ? cfg.data.hdr_path.replace('/assets/hdr/','') : '';
+        const current = saved || '森林.exr';
+        sel.innerHTML = '<option value="">-- 选择 HDR --</option>' +
+            hdrList.data.map(f => `<option value="${f}" ${f===current?'selected':''}>${f}</option>`).join('');
+        showHDRPreview(current);
+    }
+    if (cfg.code === 0 && cfg.data?.model_path) {
+        document.getElementById('edit-model-path').value = cfg.data.model_path;
+    }
+    if (cfg.code === 0 && cfg.data?.glb_animations) {
+        try { _animNames = typeof cfg.data.glb_animations === 'string' ? JSON.parse(cfg.data.glb_animations) : cfg.data.glb_animations; } catch { _animNames = []; }
+    }
+    if (cfg.code === 0 && cfg.data?.camera_presets) {
+        try { _cameras = typeof cfg.data.camera_presets === 'string' ? JSON.parse(cfg.data.camera_presets) : cfg.data.camera_presets; } catch { _cameras = []; }
+    } else { _cameras = []; }
+    renderCameras();
+}
+
+function renderCameras() {
+    const list = document.getElementById('cameras-list');
+    if (_cameras.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:20px">请先上传GLB模型，自动读取镜头和动画</div>';
+        return;
+    }
+    list.innerHTML = _cameras.map((cam, i) => {
+        const opts = _animNames.map((n, j) => `<option value="${j}" ${j===(cam.animIdx||i)?'selected':''}>${n}</option>`).join('');
+        return `
+        <div class="item-card">
+            <div class="info">
+                <h3>📷 镜头 ${i+1}</h3>
+                <p style="font-size:11px;color:var(--text2)">${cam.label || '未命名'}</p>
+            </div>
+            <div class="actions" style="align-items:center;gap:8px">
+                <label style="font-size:12px;color:var(--text2)">🎬 对应动画:</label>
+                <select onchange="_cameras[${i}].animIdx=+this.value"
+                    style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:13px;min-width:100px">
+                    ${opts}
+                </select>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function saveCameras() {
+    const res = await api('PUT', '/admin/config', { camera_presets: JSON.stringify(_cameras) });
+    if (res.code === 0) showMsg('映射已保存！刷新主页查看效果');
+    else showMsg('保存失败', true);
+}
+
+// ====== 回车登录 ======
+document.getElementById('password-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') login();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.min.js"></script>
+<script>
+let quill;
+
+function initQuill() {
+    const el = document.getElementById('quill-editor');
+    // 清除旧实例残留
+    el.innerHTML = '<h1>标题</h1><p>正文内容...</p><p><a href="https://">链接</a></p>';
+    if (quill) quill = null;
+    quill = new Quill(el, {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1,2,3,false] }],
+                ['bold','italic','underline','strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['blockquote','code-block'],
+                ['link'],
+                ['clean'],
+            ]
+        },
+        placeholder: '在这里编辑内容...',
+    });
+}
+</script>
+</body>
+</html>

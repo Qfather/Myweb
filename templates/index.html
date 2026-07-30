@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- ====== 3D 场景容器 ====== -->
+    <div id="scene-container"></div>
+
+    <!-- ====== 加载进度条 ====== -->
+    <div id="loader">
+        <div class="loader-bar">
+            <div class="loader-fill" id="loader-fill"></div>
+        </div>
+        <div class="loader-text">加载中...</div>
+    </div>
+
+    <!-- ====== 左上角个人资料 ====== -->
+    <div id="profile-top">
+        <img id="avatar-top" src="/static/uploads/default-avatar.svg" alt="头像">
+        <div class="profile-text">
+            <h2 id="nickname-top">加载中...</h2>
+            <p id="bio-top">...</p>
+        </div>
+    </div>
+
+    <!-- ====== 右侧文本面板 ====== -->
+    <div id="text-panel">
+        <div class="text-scroll">
+            <p id="text-line">点击开始</p>
+        </div>
+    </div>
+
+    <!-- ====== 状态提示 ====== -->
+    <div class="hint" id="hint">点击进入导览 · 滚轮切换</div>
+    <div class="admin-hint">连击5次进入管理后台</div>
+
+    <!-- ====== 左下角社交图标 ====== -->
+    <div id="social-bar"></div>
+
+    <!-- ====== 二维码弹窗 ====== -->
+    <div id="qrcode-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="qrcode-close">✕</button>
+            <img id="qrcode-img" src="" alt="二维码">
+            <p id="qrcode-label"></p>
+        </div>
+    </div>
+
+    <!-- ====== 脚本 ====== -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
