@@ -1,5 +1,7 @@
 # 🎨 个人 3D 主页
 
+![预览](Assets/screenshot/Snipaste_2026-07-30_17-53-23.png)
+
 基于 **Three.js + Flask** 构建的交互式 3D 个人主页。
 
 ## ✨ 功能

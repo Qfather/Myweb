@@ -17,7 +17,8 @@ import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 const loaderEl=document.getElementById('loader');
 const loaderFill=document.getElementById('loader-fill');
 let loadProgress=0;
-function setLoadProgress(p){loadProgress=Math.max(loadProgress,p);loaderFill.style.width=loadProgress+'%';}
+function setLoadProgress(p){loadProgress=Math.max(loadProgress,p);loaderFill.style.width=loadProgress+'%';
+ const lt=document.getElementById('loader-text');if(lt)lt.textContent=Math.round(loadProgress)+'%';}
 function hideLoader(){loaderEl.classList.add('hidden');setTimeout(()=>{if(loaderEl.parentNode)loaderEl.parentNode.removeChild(loaderEl);},600);}
 
 const container = document.getElementById('scene-container');
