@@ -8,7 +8,8 @@ import Resume from './ui/Resume'
 import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import AdminPanel from './ui/AdminPanel'
-import { fetchProfile, fetchConfig, type Profile } from './api'
+import SocialBar from './ui/SocialBar'
+import { fetchProfile, fetchConfig, parseSocialLinks, type Profile, type SocialLink } from './api'
 
 function Backdrop() {
   return (
@@ -67,11 +68,15 @@ export default function App() {
   const [heroBl, setHeroBl] = useState('')
   const [heroRight, setHeroRight] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
+  const [socials, setSocials] = useState<SocialLink[]>([])
   const { scrollY } = useScroll()
   const worksRef = useRef(null)
 
   const reloadProfile = useCallback(() => {
-    fetchProfile().then(setProfile)
+    fetchProfile().then((p) => {
+      setProfile(p)
+      if (p) setSocials(parseSocialLinks(p.social_links))
+    })
     fetchConfig().then((cfg) => {
       setHeroTr(cfg.hero_tr || '')
       setHeroBl(cfg.hero_bl || '')
@@ -142,9 +147,11 @@ export default function App() {
           <span>Personal Portfolio</span>
         </div>
         <div className="hero-meta hm-tr">{heroTr || `Portfolio — ${new Date().getFullYear()}`}</div>
-        <div className="hero-meta hm-bl">{heroBl || 'Code · Art · Play'}</div>
         <div className="hero-meta hm-right">{heroRight || profile?.email || ''}</div>
       </motion.div>
+
+      {/* 左下角社交图标 */}
+      <SocialBar socials={socials} />
 
       <NoiseOverlay />
 

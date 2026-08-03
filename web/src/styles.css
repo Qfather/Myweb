@@ -1910,3 +1910,76 @@ canvas {
 }
 .adm-select:focus { border-color: #ffd9b3; }
 .adm-select option { background: #141a24; color: var(--ink); }
+
+/* ====== 左下角社交图标 ====== */
+.social-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 44px;
+  z-index: 20;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.social-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.social-icon:hover {
+  transform: scale(1.15);
+}
+.social-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* ====== 二维码弹窗 ====== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 32px;
+  text-align: center;
+  position: relative;
+  max-width: 280px;
+}
+.modal-content img {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+.modal-content p {
+  font-size: 14px;
+  color: #1a1a2e;
+  margin: 0;
+}
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-close:hover { color: #333; }
