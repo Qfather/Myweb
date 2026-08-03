@@ -354,37 +354,35 @@ function Man2({
   )
 }
 
-// 后处理：按前景效果类型动态启用（组件常驻，避免增删子元素导致黑屏）
+// 后处理：只渲染选中的单个效果；none 时不渲染 composer（避免挂载零效果导致黑/绿屏）
 function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxIntensity?: number }) {
-  return (
-    <EffectComposer multisampling={0} stencilBuffer={false} depthBuffer>
-      <Bloom
-        key="bloom"
-        mipmapBlur
-        intensity={fxType === 'bloom' ? 0.3 + fxIntensity * 1.6 : 0}
-        luminanceThreshold={0.7}
-        luminanceSmoothing={0.3}
-      />
-      <Vignette key="vig" eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxType === 'vignette' ? fxIntensity : 0} />
-      <Scanline key="scan" density={fxType === 'scanline' ? 0.3 + fxIntensity * 2.2 : 0} />
-      <DepthOfField
-        key="dof"
-        focusDistance={0.02}
-        focalLength={0.04 + (1 - fxIntensity) * 0.05}
-        bokehScale={fxType === 'dof' ? fxIntensity * 12 : 0}
-        height={480}
-      />
+  let effect: JSX.Element | null = null
+  if (fxType === 'bloom') {
+    effect = <Bloom key="fx" mipmapBlur intensity={0.3 + fxIntensity * 1.6} luminanceThreshold={0.7} luminanceSmoothing={0.3} />
+  } else if (fxType === 'vignette') {
+    effect = <Vignette key="fx" eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />
+  } else if (fxType === 'scanline') {
+    effect = <Scanline key="fx" density={0.3 + fxIntensity * 2.2} />
+  } else if (fxType === 'dof') {
+    effect = <DepthOfField key="fx" focusDistance={0.02} focalLength={0.04 + (1 - fxIntensity) * 0.05} bokehScale={fxIntensity * 12} height={480} />
+  } else if (fxType === 'chromatic') {
+    effect = (
       <ChromaticAberration
-        key="chrom"
-        offset={
-          fxType === 'chromatic'
-            ? new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)
-            : new THREE.Vector2(0, 0)
-        }
+        key="fx"
+        offset={new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)}
         radialModulation={false}
         modulationOffset={0}
       />
-      <Pixelation key="pixel" granularity={fxType === 'pixel' ? 1 + Math.round(fxIntensity * 6) : 1} />
+    )
+  } else if (fxType === 'pixel') {
+    effect = <Pixelation key="fx" granularity={1 + Math.round(fxIntensity * 6)} />
+  }
+
+  if (!effect) return null
+
+  return (
+    <EffectComposer key={fxType} multisampling={0} stencilBuffer={false} depthBuffer>
+      {effect}
       <SMAA />
     </EffectComposer>
   )
