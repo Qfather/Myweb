@@ -55,6 +55,8 @@ export default function AdminPanel({
     gradBottom: string
     bgImage: string
     modelPath: string
+    noiseEnabled: boolean
+    noiseOpacity: number
   }
   onPreview?: (partial: Partial<NonNullable<typeof preview>>) => void
 }) {
