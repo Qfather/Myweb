@@ -392,6 +392,9 @@ export default function AdminPanel({
               <option value="scanline">扫描线</option>
               <option value="bloom">辉光</option>
               <option value="dof">景深</option>
+              <option value="chromatic">色差</option>
+              <option value="scratches">胶片划痕</option>
+              <option value="pixel">像素化</option>
             </select>
           </label>
           <label>强度

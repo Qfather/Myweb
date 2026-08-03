@@ -9,6 +9,7 @@ import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import AdminPanel from './ui/AdminPanel'
 import SocialBar from './ui/SocialBar'
+import ScratchesOverlay from './ui/ScratchesOverlay'
 import { fetchProfile, fetchConfig, parseSocialLinks, type Profile, type SocialLink } from './api'
 
 function Backdrop() {
@@ -189,6 +190,7 @@ export default function App() {
       <SocialBar socials={socials} />
 
       <NoiseOverlay enabled={preview.fxType === 'noise'} opacity={preview.fxIntensity} />
+      {preview.fxType === 'scratches' && <ScratchesOverlay intensity={preview.fxIntensity} />}
 
       {/* 右上角管理按钮 */}
       <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
