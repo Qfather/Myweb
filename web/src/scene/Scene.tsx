@@ -378,12 +378,15 @@ function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxInte
       />
       <ChromaticAberration
         key="chrom"
-        enabled={fxType === 'chromatic'}
-        offset={new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)}
+        offset={
+          fxType === 'chromatic'
+            ? new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)
+            : new THREE.Vector2(0, 0)
+        }
         radialModulation={false}
         modulationOffset={0}
       />
-      <Pixelation key="pixel" enabled={fxType === 'pixel'} granularity={1 + Math.round(fxIntensity * 6)} />
+      <Pixelation key="pixel" granularity={fxType === 'pixel' ? 1 + Math.round(fxIntensity * 6) : 1} />
       <SMAA />
     </EffectComposer>
   )
