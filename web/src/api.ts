@@ -55,6 +55,8 @@ export interface SiteConfig {
   hero_frame?: string       // 边框显示 'on' | 'off'
   noise_enabled?: string
   noise_opacity?: string
+  fx_type?: string          // 'none'|'noise'|'vignette'|'scanline'|'bloom'|'dof'
+  fx_intensity?: string
 }
 
 export async function fetchProfile(): Promise<Profile | null> {

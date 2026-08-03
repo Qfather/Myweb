@@ -55,8 +55,8 @@ export default function AdminPanel({
     gradBottom: string
     bgImage: string
     modelPath: string
-    noiseEnabled: boolean
-    noiseOpacity: number
+    fxType: string
+    fxIntensity: number
   }
   onPreview?: (partial: Partial<NonNullable<typeof preview>>) => void
 }) {
@@ -84,6 +84,8 @@ export default function AdminPanel({
   const [hdrRotation, setHdrRotation] = useState(0)
   const [noiseEnabled, setNoiseEnabled] = useState(true)
   const [noiseOpacity, setNoiseOpacity] = useState(0.5)
+  const [fxType, setFxType] = useState('none')
+  const [fxIntensity, setFxIntensity] = useState(0.5)
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -113,6 +115,8 @@ export default function AdminPanel({
       setHdrRotation(c.hdr_rotation ? parseFloat(c.hdr_rotation) : 0)
       setNoiseEnabled(c.noise_enabled !== 'off')
       setNoiseOpacity(c.noise_opacity ? parseFloat(c.noise_opacity) : 0.5)
+      setFxType(c.fx_type || (c.noise_enabled === 'on' ? 'noise' : 'none'))
+      setFxIntensity(c.fx_intensity ? parseFloat(c.fx_intensity) : c.noise_opacity ? parseFloat(c.noise_opacity) : 0.5)
     })
     api('GET', '/api/hdr-list').then((r: any) => {
       if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
@@ -182,6 +186,8 @@ export default function AdminPanel({
         hdr_rotation: String(hdrRotation),
         noise_enabled: noiseEnabled ? 'on' : 'off',
         noise_opacity: String(noiseOpacity),
+        fx_type: fxType,
+        fx_intensity: String(fxIntensity),
         bg_mode: bgMode,
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
@@ -368,29 +374,40 @@ export default function AdminPanel({
 
       {tab === 'bg' && (
         <div className="adm-form">
-          <h4>噪点</h4>
-          <div className="adm-bg-modes">
-            <button className={noiseEnabled ? 'on' : ''} onClick={() => { setNoiseEnabled(true); onPreview?.({ noiseEnabled: true }) }}>开启</button>
-            <button className={!noiseEnabled ? 'on' : ''} onClick={() => { setNoiseEnabled(false); onPreview?.({ noiseEnabled: false }) }}>关闭</button>
-          </div>
-          {noiseEnabled && (
-            <label>噪点浓度
-              <div className="adm-bright-row">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={Math.round(noiseOpacity * 100)}
-                  onChange={(e) => {
-                    const v = Number(e.target.value) / 100
-                    setNoiseOpacity(v)
-                    onPreview?.({ noiseOpacity: v })
-                  }}
-                />
-                <span>{noiseOpacity.toFixed(1)}</span>
-              </div>
-            </label>
-          )}
+          <h4>前景效果</h4>
+          <label>效果类型
+            <select
+              value={fxType}
+              onChange={(e) => {
+                setFxType(e.target.value)
+                onPreview?.({ fxType: e.target.value })
+              }}
+              className="adm-select"
+            >
+              <option value="none">无</option>
+              <option value="noise">胶片噪点</option>
+              <option value="vignette">暗角</option>
+              <option value="scanline">扫描线</option>
+              <option value="bloom">辉光</option>
+              <option value="dof">景深</option>
+            </select>
+          </label>
+          <label>强度
+            <div className="adm-bright-row">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={Math.round(fxIntensity * 100)}
+                onChange={(e) => {
+                  const v = Number(e.target.value) / 100
+                  setFxIntensity(v)
+                  onPreview?.({ fxIntensity: v })
+                }}
+              />
+              <span>{fxIntensity.toFixed(1)}</span>
+            </div>
+          </label>
 
           <h4>背景模式</h4>
           <div className="adm-bg-modes">

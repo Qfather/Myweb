@@ -1,7 +1,7 @@
 import { Suspense, useMemo, useRef, useEffect, useState, type MutableRefObject } from 'react'
 import { useThree, useFrame, useLoader } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, SMAA, Vignette, Scanline, DepthOfField } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import Env from './Env'
 import { fetchConfig, parseSocialLinks } from '../api'
@@ -354,11 +354,24 @@ function Man2({
   )
 }
 
-// 后处理：Bloom + SMAA
-function Post2() {
+// 后处理：按前景效果类型动态组合
+function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxIntensity?: number }) {
+  const effects: JSX.Element[] = []
+  if (fxType === 'bloom') {
+    effects.push(<Bloom key="bloom" mipmapBlur intensity={0.3 + fxIntensity * 1.6} luminanceThreshold={0.7} luminanceSmoothing={0.3} />)
+  }
+  if (fxType === 'vignette') {
+    effects.push(<Vignette key="vig" eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />)
+  }
+  if (fxType === 'scanline') {
+    effects.push(<Scanline key="scan" density={0.3 + fxIntensity * 2.2} />)
+  }
+  if (fxType === 'dof') {
+    effects.push(<DepthOfField key="dof" focusDistance={0.02} focalLength={0.04 + (1 - fxIntensity) * 0.05} bokehScale={fxIntensity * 12} height={480} />)
+  }
   return (
     <EffectComposer multisampling={0} stencilBuffer={false} depthBuffer>
-      <Bloom mipmapBlur intensity={0.6} luminanceThreshold={0.82} luminanceSmoothing={0.3} />
+      {(effects as any)}
       <SMAA />
     </EffectComposer>
   )
@@ -379,6 +392,8 @@ export default function Scene({
     gradTop: string
     gradBottom: string
     bgImage: string
+    fxType: string
+    fxIntensity: number
   }
 }) {
   const focusRef = useRef(new THREE.Vector3(0, 1.3, 0))
@@ -429,7 +444,7 @@ export default function Scene({
         <Lights bgMode={bgMode} refreshKey={refreshKey} hdrPath={preview?.hdrPath} brightness={effBright} rotation={effRot} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
       </Suspense>
-      <Post2 />
+      <Post2 fxType={preview?.fxType} fxIntensity={preview?.fxIntensity} />
     </>
   )
 }
