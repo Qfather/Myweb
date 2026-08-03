@@ -78,6 +78,7 @@ export default function AdminPanel({
   const [heroFrame, setHeroFrame] = useState('on')
   const [hdrList, setHdrList] = useState<string[]>([])
   const [hdrBrightness, setHdrBrightness] = useState(1)
+  const [hdrRotation, setHdrRotation] = useState(0)
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -104,6 +105,7 @@ export default function AdminPanel({
       setHeroRight(c.hero_right || '')
       setHeroFrame(c.hero_frame || 'on')
       setHdrBrightness(c.hdr_brightness ? parseFloat(c.hdr_brightness) : 1)
+      setHdrRotation(c.hdr_rotation ? parseFloat(c.hdr_rotation) : 0)
     })
     // 用 App 传入的实时预览值初始化
     if (preview) {
@@ -113,6 +115,7 @@ export default function AdminPanel({
       setGradBottom(preview.gradBottom)
       setBgImage(preview.bgImage)
       setHdrBrightness(preview.hdrBrightness)
+      setHdrRotation(preview.hdrRotation)
     }
     api('GET', '/api/hdr-list').then((r: any) => {
       if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
@@ -179,6 +182,7 @@ export default function AdminPanel({
         model_path: modelPath,
         hdr_path: hdrPath,
         hdr_brightness: String(hdrBrightness),
+        hdr_rotation: String(hdrRotation),
         bg_mode: bgMode,
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
@@ -432,6 +436,22 @@ export default function AdminPanel({
                     }}
                   />
                   <span>{hdrBrightness.toFixed(1)}</span>
+                </div>
+              </label>
+              <label>旋转（度）
+                <div className="adm-bright-row">
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    value={hdrRotation}
+                    onChange={(e) => {
+                      const v = Number(e.target.value)
+                      setHdrRotation(v)
+                      onPreview?.({ hdrRotation: v })
+                    }}
+                  />
+                  <span>{hdrRotation}°</span>
                 </div>
               </label>
             </>

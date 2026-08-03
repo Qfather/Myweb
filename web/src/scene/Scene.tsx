@@ -112,18 +112,20 @@ function Lights({
   refreshKey = 0,
   hdrPath,
   brightness = 1,
+  rotation = 0,
 }: {
   bgMode?: string
   refreshKey?: number
   hdrPath?: string
   brightness?: number
+  rotation?: number
 }) {
   return (
     <>
       <Env
         intensity={0.85}
         rotationX={0}
-        rotationY={0}
+        rotationY={rotation}
         rotationZ={0}
         asBackground={bgMode === 'hdr'}
         bgIntensity={0.4}
@@ -372,6 +374,7 @@ export default function Scene({
     modelPath: string
     hdrPath: string
     hdrBrightness: number
+    hdrRotation: number
     bgMode: string
     gradTop: string
     gradBottom: string
@@ -416,13 +419,14 @@ export default function Scene({
   }, [refreshKey])
 
   const effBright = preview ? preview.hdrBrightness : 1
+  const effRot = preview ? preview.hdrRotation : 0
 
   return (
     <>
       {bgMode === 'gradient' && <GradientBackground top={gradTop} bottom={gradBottom} />}
       {bgMode === 'image' && bgImage && <ImageBackground path={bgImage} />}
       <Suspense fallback={null}>
-        <Lights bgMode={bgMode} refreshKey={refreshKey} hdrPath={preview?.hdrPath} brightness={effBright} />
+        <Lights bgMode={bgMode} refreshKey={refreshKey} hdrPath={preview?.hdrPath} brightness={effBright} rotation={effRot} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
       </Suspense>
       <Post2 />
