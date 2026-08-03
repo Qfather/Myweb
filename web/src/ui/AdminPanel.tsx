@@ -22,6 +22,22 @@ async function api(method: string, url: string, body?: any) {
   return r.json()
 }
 
+// 社交平台（从 Assets/icons/ 生成，file 对应图标文件名）
+const SOCIAL_PLATFORMS = [
+  { name: '微信', file: '微信.png' },
+  { name: 'GitHub', file: 'github.png' },
+  { name: '哔哩哔哩', file: '哔哩哔哩.png' },
+  { name: '小红书', file: '小红书.png' },
+  { name: '新浪微博', file: '新浪.png' },
+  { name: '腾讯QQ', file: '腾讯QQ.png' },
+  { name: '抖音', file: 'tiktok.png' },
+  { name: 'Twitter/X', file: 'TwitterX.png' },
+  { name: 'LinkedIn', file: 'linkedin.png' },
+  { name: 'Behance', file: 'behance.png' },
+  { name: 'YouTube', file: 'youtube.png' },
+]
+const ICON_PATH = '/assets/icons/'
+
 // ====== 管理面板：登录 + 各编辑区块 ======
 export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -200,6 +216,29 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
     }
   }
 
+  // 下拉选择平台 → 自动填 name + icon
+  function onSocialPick(i: number, name: string) {
+    const p = SOCIAL_PLATFORMS.find((x) => x.name === name)
+    const ns = [...socials]
+    ns[i] = { ...ns[i], name, icon: p ? ICON_PATH + p.file : '' }
+    setSocials(ns)
+  }
+
+  // 微信上传二维码
+  async function uploadQR(e: React.ChangeEvent<HTMLInputElement>, i: number) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const fd = new FormData()
+    fd.append('file', file)
+    const r = await (await fetch('/admin/upload', { method: 'POST', credentials: 'include', body: fd })).json()
+    if (r.code === 0) {
+      const ns = [...socials]
+      ns[i] = { ...ns[i], qrcode: r.data.url }
+      setSocials(ns)
+      flash('二维码已上传，点「保存资料」应用')
+    }
+  }
+
   return (
     <div className="adm-panel">
       <div className="adm-tabs">
@@ -224,13 +263,46 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           </label>
 
           <h4>社交平台</h4>
-          {socials.map((s, i) => (
-            <div className="adm-social-row" key={i}>
-              <input value={s.name} placeholder="名称" onChange={(e) => { const ns = [...socials]; ns[i] = { ...ns[i], name: e.target.value }; setSocials(ns) }} />
-              <input value={s.url} placeholder="链接" onChange={(e) => { const ns = [...socials]; ns[i] = { ...ns[i], url: e.target.value }; setSocials(ns) }} />
-              <button onClick={() => setSocials(socials.filter((_, j) => j !== i))}>✕</button>
-            </div>
-          ))}
+          {socials.map((s, i) => {
+            const isWx = s.type === 'wechat' || s.name === '微信'
+            if (isWx) {
+              // 微信：名称固定 + 链接输入 + 上传二维码
+              return (
+                <div className="adm-social-row" key={i}>
+                  <span className="adm-wx-label">微信</span>
+                  <input
+                    value={s.url}
+                    placeholder="微信号或链接"
+                    onChange={(e) => { const ns = [...socials]; ns[i] = { ...ns[i], url: e.target.value }; setSocials(ns) }}
+                  />
+                  <input type="file" accept="image/*" style={{ display: 'none' }} id={`qr-${i}`} onChange={(e) => uploadQR(e, i)} />
+                  <button className="adm-qr-btn" title="上传二维码" onClick={() => document.getElementById(`qr-${i}`)?.click()}>↑</button>
+                  {s.qrcode && <img src={s.qrcode} alt="二维码" className="adm-qr-thumb" />}
+                </div>
+              )
+            }
+            // 其他平台：下拉菜单（不含微信）+ 链接
+            return (
+              <div className="adm-social-row" key={i}>
+                <select
+                  value={s.name}
+                  className="adm-select adm-social-select"
+                  onChange={(e) => onSocialPick(i, e.target.value)}
+                >
+                  <option value="">-- 选择 --</option>
+                  {SOCIAL_PLATFORMS.filter((p) => p.name !== '微信').map((p) => (
+                    <option key={p.file} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+                <input
+                  value={s.url}
+                  placeholder="https://..."
+                  onChange={(e) => { const ns = [...socials]; ns[i] = { ...ns[i], url: e.target.value }; setSocials(ns) }}
+                />
+                <button onClick={() => setSocials(socials.filter((_, j) => j !== i))}>✕</button>
+              </div>
+            )
+          })}
           <button className="adm-add" onClick={() => setSocials([...socials, { name: '', icon: '', url: '', type: 'link', qrcode: '' }])}>+ 添加社交</button>
 
           <h4>模型</h4>

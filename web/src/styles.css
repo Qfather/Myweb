@@ -1983,3 +1983,47 @@ canvas {
   line-height: 1;
 }
 .modal-close:hover { color: #333; }
+
+/* ====== 社交编辑（下拉+链接 / 微信二维码） ====== */
+.adm-social-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.adm-social-row input { flex: 1; }
+.adm-social-row button {
+  border: none;
+  background: none;
+  color: #e06c6c;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.adm-social-select { flex: 0 0 110px; width: auto; padding: 9px 8px; }
+.adm-wx-label {
+  flex: 0 0 56px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+}
+.adm-qr-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 6px;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.adm-qr-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
