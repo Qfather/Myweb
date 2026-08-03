@@ -1630,10 +1630,7 @@ canvas {
 
 /* ====== 右侧管理面板 ====== */
 .adm-gear {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 60;
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
