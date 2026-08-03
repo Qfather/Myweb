@@ -354,37 +354,36 @@ function Man2({
   )
 }
 
-// 后处理：按前景效果类型动态组合
+// 后处理：按前景效果类型动态启用（组件常驻，避免增删子元素导致黑屏）
 function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxIntensity?: number }) {
-  const effects: JSX.Element[] = []
-  if (fxType === 'bloom') {
-    effects.push(<Bloom key="bloom" mipmapBlur intensity={0.3 + fxIntensity * 1.6} luminanceThreshold={0.7} luminanceSmoothing={0.3} />)
-  }
-  if (fxType === 'vignette') {
-    effects.push(<Vignette key="vig" eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />)
-  }
-  if (fxType === 'scanline') {
-    effects.push(<Scanline key="scan" density={0.3 + fxIntensity * 2.2} />)
-  }
-  if (fxType === 'dof') {
-    effects.push(<DepthOfField key="dof" focusDistance={0.02} focalLength={0.04 + (1 - fxIntensity) * 0.05} bokehScale={fxIntensity * 12} height={480} />)
-  }
-  if (fxType === 'chromatic') {
-    effects.push(
+  return (
+    <EffectComposer multisampling={0} stencilBuffer={false} depthBuffer>
+      <Bloom
+        enabled={fxType === 'bloom'}
+        key="bloom"
+        mipmapBlur
+        intensity={0.3 + fxIntensity * 1.6}
+        luminanceThreshold={0.7}
+        luminanceSmoothing={0.3}
+      />
+      <Vignette key="vig" enabled={fxType === 'vignette'} eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />
+      <Scanline key="scan" enabled={fxType === 'scanline'} density={0.3 + fxIntensity * 2.2} />
+      <DepthOfField
+        key="dof"
+        enabled={fxType === 'dof'}
+        focusDistance={0.02}
+        focalLength={0.04 + (1 - fxIntensity) * 0.05}
+        bokehScale={fxIntensity * 12}
+        height={480}
+      />
       <ChromaticAberration
         key="chrom"
+        enabled={fxType === 'chromatic'}
         offset={new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)}
         radialModulation={false}
         modulationOffset={0}
       />
-    )
-  }
-  if (fxType === 'pixel') {
-    effects.push(<Pixelation key="pixel" granularity={1 + Math.round(fxIntensity * 6)} />)
-  }
-  return (
-    <EffectComposer multisampling={0} stencilBuffer={false} depthBuffer>
-      {(effects as any)}
+      <Pixelation key="pixel" enabled={fxType === 'pixel'} granularity={1 + Math.round(fxIntensity * 6)} />
       <SMAA />
     </EffectComposer>
   )
