@@ -190,7 +190,12 @@ export default function App() {
       <SocialBar socials={socials} />
 
       <NoiseOverlay enabled={preview.fxType === 'noise'} opacity={preview.fxIntensity} />
-      <EffectBar fxType={preview.fxType} onSelect={(id) => onPreview({ fxType: id })} />
+      <EffectBar
+        fxType={preview.fxType}
+        fxIntensity={preview.fxIntensity}
+        onSelect={(id) => onPreview({ fxType: id })}
+        onIntensity={(v) => onPreview({ fxIntensity: v })}
+      />
 
       {/* 右上角管理按钮 */}
       <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">

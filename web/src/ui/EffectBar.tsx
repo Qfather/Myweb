@@ -13,13 +13,17 @@ const FX_ITEMS = [
 ]
 const ICON_PATH = '/assets/icons/effect/'
 
-// 页面顶部居中的效果切换栏：悬停放大 + 显示名字，点击切换
+// 页面顶部居中的效果图标：悬停放大并在图标中心显示名字，点击切换；下方滑块调强度
 export default function EffectBar({
   fxType,
+  fxIntensity,
   onSelect,
+  onIntensity,
 }: {
   fxType: string
+  fxIntensity: number
   onSelect: (id: string) => void
+  onIntensity: (v: number) => void
 }) {
   const [hover, setHover] = useState<string | null>(null)
 
@@ -34,9 +38,19 @@ export default function EffectBar({
           onClick={() => onSelect(item.id)}
         >
           <img src={ICON_PATH + item.file} alt={item.name} />
+          {hover === item.name && <span className="fx-name">{item.name}</span>}
         </div>
       ))}
-      {hover && <div className="fx-tooltip">{hover}</div>}
+      {/* 强度滑块 */}
+      <input
+        className="fx-slider"
+        type="range"
+        min="0"
+        max="100"
+        value={Math.round(fxIntensity * 100)}
+        onChange={(e) => onIntensity(Number(e.target.value) / 100)}
+        title="强度"
+      />
     </div>
   )
 }
