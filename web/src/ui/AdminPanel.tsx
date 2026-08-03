@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import QuillEditor from './QuillEditor'
 import {
   fetchProfile,
   fetchExperiences,
@@ -391,8 +392,8 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           <label>标题
             <input value={expDraft.title} onChange={(e) => setExpDraft({ ...expDraft, title: e.target.value })} />
           </label>
-          <label>内容（Markdown / 纯文本）
-            <textarea value={expDraft.description} onChange={(e) => setExpDraft({ ...expDraft, description: e.target.value })} rows={4} />
+          <label>内容（所见即所得）
+            <QuillEditor value={expDraft.description} onChange={(html) => setExpDraft({ ...expDraft, description: html })} />
           </label>
           <label>链接
             <input value={expDraft.url} onChange={(e) => setExpDraft({ ...expDraft, url: e.target.value })} />
@@ -417,8 +418,8 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           <label>标题
             <input value={workDraft.title} onChange={(e) => setWorkDraft({ ...workDraft, title: e.target.value })} />
           </label>
-          <label>描述
-            <textarea value={workDraft.description} onChange={(e) => setWorkDraft({ ...workDraft, description: e.target.value })} rows={3} />
+          <label>描述（所见即所得）
+            <QuillEditor value={workDraft.description} onChange={(html) => setWorkDraft({ ...workDraft, description: html })} />
           </label>
           <label>链接
             <input value={workDraft.url} onChange={(e) => setWorkDraft({ ...workDraft, url: e.target.value })} />

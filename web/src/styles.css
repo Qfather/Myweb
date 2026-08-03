@@ -2027,3 +2027,59 @@ canvas {
   object-fit: cover;
   border: 1px solid var(--line);
 }
+
+/* ====== 富文本展示 ====== */
+.tl-html,
+.wk-card-html {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.tl-html h1, .wk-card-html h1 { font-size: 24px; color: var(--ink); margin: 0.5em 0; }
+.tl-html h2, .wk-card-html h2 { font-size: 20px; color: var(--ink); margin: 0.5em 0; }
+.tl-html h3, .wk-card-html h3 { font-size: 17px; color: var(--ink); margin: 0.4em 0; }
+.tl-html p, .wk-card-html p { margin: 0.5em 0; }
+.tl-html ul, .wk-card-html ul, .tl-html ol, .wk-card-html ol { padding-left: 1.4em; margin: 0.5em 0; }
+.tl-html a, .wk-card-html a { color: #ffd9b3; text-decoration: underline; }
+.tl-html blockquote, .wk-card-html blockquote {
+  border-left: 3px solid #ffd9b3;
+  margin: 0.6em 0;
+  padding: 0.3em 1em;
+  color: rgba(244, 241, 234, 0.6);
+}
+.tl-html code, .wk-card-html code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* ====== Quill 暗色适配 ====== */
+.quill-wrap {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.quill-wrap .ql-toolbar {
+  background: #141a24;
+  border: none;
+  border-bottom: 1px solid var(--line);
+}
+.quill-wrap .ql-toolbar button .ql-stroke { stroke: var(--muted); }
+.quill-wrap .ql-toolbar button:hover .ql-stroke,
+.quill-wrap .ql-toolbar .ql-active .ql-stroke { stroke: #ffd9b3; }
+.quill-wrap .ql-toolbar button .ql-fill { fill: var(--muted); }
+.quill-wrap .ql-toolbar button:hover .ql-fill,
+.quill-wrap .ql-toolbar .ql-active .ql-fill { fill: #ffd9b3; }
+.quill-wrap .ql-container {
+  background: #0d1119;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
+.quill-wrap .ql-editor { min-height: 160px; color: var(--ink); }
+.quill-wrap .ql-editor.ql-blank::before {
+  color: rgba(244, 241, 234, 0.3);
+  font-style: normal;
+}

@@ -6,7 +6,7 @@ import { fetchExperiences, fetchProfile, parseSocialLinks, type Experience } fro
 interface ResumeEntry {
   period: string
   place: string
-  points?: string[]
+  html?: string
   link?: string
 }
 
@@ -20,15 +20,12 @@ const itemV = {
   show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
 }
 
-// 经历 → 履历条目：title 为主题，description 按行拆分
+// 经历 → 履历条目：title 为主题，description 为富文本 HTML
 function expToEntry(exp: Experience, i: number): ResumeEntry {
-  const descLines = exp.description
-    ? exp.description.replace(/<[^>]*>/g, '').split('\n').map((s) => s.trim()).filter(Boolean)
-    : []
   return {
     period: `#${String(i + 1).padStart(2, '0')}`,
     place: exp.title || '经历',
-    points: descLines.length > 0 ? descLines : undefined,
+    html: exp.description || undefined,
     link: exp.url || undefined,
   }
 }
@@ -51,12 +48,12 @@ function Entry({ entry, index }: { entry: ResumeEntry; index: number }) {
         <motion.div className="tl-head" variants={itemV}>
           <h3 className="tl-place">{entry.place}</h3>
         </motion.div>
-        {entry.points && (
-          <motion.ul className="tl-points" variants={itemV}>
-            {entry.points.map((p, i) => (
-              <li key={i}>{p}</li>
-            ))}
-          </motion.ul>
+        {entry.html && (
+          <motion.div
+            className="tl-html"
+            variants={itemV}
+            dangerouslySetInnerHTML={{ __html: entry.html }}
+          />
         )}
         {entry.link && (
           <motion.a

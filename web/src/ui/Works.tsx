@@ -4,22 +4,18 @@ import { fetchWorks, type Work } from '../api'
 
 const EASE = [0.22, 1, 0.36, 1]
 
-// 一张全高作品卡：标题 + 描述 + 链接
+// 一张全高作品卡：标题 + 富文本描述 + 链接
 function WorkCard({ work, index }: { work: Work; index: number }) {
-  const desc = work.description
-    ? work.description.replace(/<[^>]*>/g, '').split('\n').map((s) => s.trim()).filter(Boolean)
-    : []
   return (
     <article className="wk-card" style={{ backgroundImage: work.cover ? `url(${work.cover})` : undefined }}>
       <div className="wk-card-inner">
         <span className="wk-card-no">{String(index + 1).padStart(2, '0')}</span>
         <h3 className="wk-card-title">{work.title}</h3>
-        {desc.length > 0 && (
-          <ul className="wk-card-points">
-            {desc.slice(0, 4).map((d, i) => (
-              <li key={i}>{d}</li>
-            ))}
-          </ul>
+        {work.description && (
+          <div
+            className="wk-card-html"
+            dangerouslySetInnerHTML={{ __html: work.description }}
+          />
         )}
         {work.url && (
           <a className="wk-card-link" href={work.url} target="_blank" rel="noopener noreferrer">
