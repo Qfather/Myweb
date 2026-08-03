@@ -53,6 +53,8 @@ export interface SiteConfig {
   hero_bl?: string          // 左下装饰文字
   hero_right?: string       // 右侧竖排文字
   hero_frame?: string       // 边框显示 'on' | 'off'
+  noise_enabled?: string
+  noise_opacity?: string
 }
 
 export async function fetchProfile(): Promise<Profile | null> {
