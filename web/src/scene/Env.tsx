@@ -16,6 +16,8 @@ export default function Env({
   bgIntensity,
   bgBlur,
   refreshKey = 0,
+  hdrPath,
+  brightness = 1,
 }: {
   intensity: number
   rotationX: number
@@ -25,38 +27,49 @@ export default function Env({
   bgIntensity: number
   bgBlur: number
   refreshKey?: number
+  hdrPath?: string
+  brightness?: number
 }) {
   const scene = useThree((s) => s.scene)
   const [texture, setTexture] = useState<THREE.Texture | null>(null)
-  const [loadedPath, setLoadedPath] = useState<string | null>(null)
 
-  // 手动加载环境贴图（绕开 useLoader 的 loader 类型缓存问题）；refreshKey 变化时重新加载
+  // 环境贴图路径：优先外部传入（实时预览），否则从配置读
+  const [resolvedPath, setResolvedPath] = useState<string>('/assets/hdr/森林.exr')
   useEffect(() => {
+    if (hdrPath) {
+      setResolvedPath(hdrPath)
+      return
+    }
     let cancelled = false
-    setTexture(null)
     fetchConfig().then((cfg) => {
-      const path = cfg.hdr_path || '/assets/hdr/森林.exr'
-      if (cancelled) return
-      let loader: any
-      if (path.match(/\.exr$/i)) loader = new EXRLoader()
-      else if (path.match(/\.hdr$/i)) loader = new RGBELoader()
-      else loader = new THREE.TextureLoader()
-      loader.load(
-        path,
-        (t: THREE.Texture) => {
-          if (!cancelled) {
-            setTexture(t)
-            setLoadedPath(path)
-          }
-        },
-        undefined,
-        (err: any) => console.warn('环境贴图加载失败:', path, err?.message || err)
-      )
+      if (!cancelled) setResolvedPath(cfg.hdr_path || '/assets/hdr/森林.exr')
     })
     return () => {
       cancelled = true
     }
-  }, [refreshKey])
+  }, [hdrPath, refreshKey])
+
+  // 加载贴图；路径变化时重新加载
+  useEffect(() => {
+    let cancelled = false
+    setTexture(null)
+    const path = resolvedPath
+    let loader: any
+    if (path.match(/\.exr$/i)) loader = new EXRLoader()
+    else if (path.match(/\.hdr$/i)) loader = new RGBELoader()
+    else loader = new THREE.TextureLoader()
+    loader.load(
+      path,
+      (t: THREE.Texture) => {
+        if (!cancelled) setTexture(t)
+      },
+      undefined,
+      (err: any) => console.warn('环境贴图加载失败:', path, err?.message || err)
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [resolvedPath])
 
   const initialBg = useRef<any>(null)
   useEffect(() => {
@@ -74,8 +87,8 @@ export default function Env({
   }, [scene, texture])
 
   useEffect(() => {
-    scene.environmentIntensity = intensity
-  }, [scene, intensity])
+    scene.environmentIntensity = intensity * brightness
+  }, [scene, intensity, brightness])
 
   useEffect(() => {
     const x = THREE.MathUtils.degToRad(rotationX)
@@ -98,6 +111,6 @@ export default function Env({
     scene.backgroundBlurriness = bgBlur
   }, [scene, bgIntensity, bgBlur])
 
-  void loadedPath
+  void 0
   return null
 }

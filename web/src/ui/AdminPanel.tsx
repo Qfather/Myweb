@@ -40,7 +40,23 @@ const SOCIAL_PLATFORMS = [
 const ICON_PATH = '/assets/icons/'
 
 // ====== 管理面板：登录 + 各编辑区块 ======
-export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
+export default function AdminPanel({
+  onSaved,
+  preview,
+  onPreview,
+}: {
+  onSaved: () => void
+  preview?: {
+    hdrPath: string
+    hdrBrightness: number
+    bgMode: string
+    gradTop: string
+    gradBottom: string
+    bgImage: string
+    modelPath: string
+  }
+  onPreview?: (partial: Partial<NonNullable<typeof preview>>) => void
+}) {
   const [loggedIn, setLoggedIn] = useState(false)
   const [pwd, setPwd] = useState('')
   const [tab, setTab] = useState<'profile' | 'exps' | 'works' | 'bg'>('profile')
@@ -61,6 +77,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [heroRight, setHeroRight] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
   const [hdrList, setHdrList] = useState<string[]>([])
+  const [hdrBrightness, setHdrBrightness] = useState(1)
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -86,7 +103,17 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       setHeroBl(c.hero_bl || '')
       setHeroRight(c.hero_right || '')
       setHeroFrame(c.hero_frame || 'on')
+      setHdrBrightness(c.hdr_brightness ? parseFloat(c.hdr_brightness) : 1)
     })
+    // 用 App 传入的实时预览值初始化
+    if (preview) {
+      setHdrPath(preview.hdrPath)
+      setBgMode(preview.bgMode)
+      setGradTop(preview.gradTop)
+      setGradBottom(preview.gradBottom)
+      setBgImage(preview.bgImage)
+      setHdrBrightness(preview.hdrBrightness)
+    }
     api('GET', '/api/hdr-list').then((r: any) => {
       if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
     })
@@ -151,6 +178,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       await api('PUT', '/admin/config', {
         model_path: modelPath,
         hdr_path: hdrPath,
+        hdr_brightness: String(hdrBrightness),
         bg_mode: bgMode,
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
@@ -339,9 +367,9 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
         <div className="adm-form">
           <h4>背景模式</h4>
           <div className="adm-bg-modes">
-            <button className={bgMode === 'gradient' ? 'on' : ''} onClick={() => setBgMode('gradient')}>渐变背景</button>
-            <button className={bgMode === 'hdr' ? 'on' : ''} onClick={() => setBgMode('hdr')}>HDR 背景</button>
-            <button className={bgMode === 'image' ? 'on' : ''} onClick={() => setBgMode('image')}>图片背景</button>
+            <button className={bgMode === 'gradient' ? 'on' : ''} onClick={() => { setBgMode('gradient'); onPreview?.({ bgMode: 'gradient' }) }}>渐变背景</button>
+            <button className={bgMode === 'hdr' ? 'on' : ''} onClick={() => { setBgMode('hdr'); onPreview?.({ bgMode: 'hdr' }) }}>HDR 背景</button>
+            <button className={bgMode === 'image' ? 'on' : ''} onClick={() => { setBgMode('image'); onPreview?.({ bgMode: 'image' }) }}>图片背景</button>
           </div>
 
           {bgMode === 'gradient' && (
@@ -349,14 +377,14 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
               <h4>渐变颜色</h4>
               <div className="adm-color-row">
                 <label>顶部
-                  <input type="color" value={gradTop} onChange={(e) => setGradTop(e.target.value)} />
-                  <input value={gradTop} onChange={(e) => setGradTop(e.target.value)} />
+                  <input type="color" value={gradTop} onChange={(e) => { setGradTop(e.target.value); onPreview?.({ gradTop: e.target.value }) }} />
+                  <input value={gradTop} onChange={(e) => { setGradTop(e.target.value); onPreview?.({ gradTop: e.target.value }) }} />
                 </label>
               </div>
               <div className="adm-color-row">
                 <label>底部
-                  <input type="color" value={gradBottom} onChange={(e) => setGradBottom(e.target.value)} />
-                  <input value={gradBottom} onChange={(e) => setGradBottom(e.target.value)} />
+                  <input type="color" value={gradBottom} onChange={(e) => { setGradBottom(e.target.value); onPreview?.({ gradBottom: e.target.value }) }} />
+                  <input value={gradBottom} onChange={(e) => { setGradBottom(e.target.value); onPreview?.({ gradBottom: e.target.value }) }} />
                 </label>
               </div>
             </>
@@ -366,7 +394,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
             <>
               <h4>背景图片</h4>
               <label>图片路径
-                <input value={bgImage} onChange={(e) => setBgImage(e.target.value)} />
+                <input value={bgImage} onChange={(e) => { setBgImage(e.target.value); onPreview?.({ bgImage: e.target.value }) }} />
               </label>
               <input type="file" accept=".png,.jpg,.jpeg,.webp" onChange={(e) => uploadFile(e, 'bgimg')} />
             </>
@@ -375,13 +403,36 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           {bgMode === 'hdr' && (
             <>
               <h4>HDR 环境贴图</h4>
-              <label>选择 HDR 文件
-                <select value={hdrPath} onChange={(e) => setHdrPath(e.target.value)} className="adm-select">
+              <label>选择 HDR 文件（切换即时生效）
+                <select
+                  value={hdrPath}
+                  onChange={(e) => {
+                    setHdrPath(e.target.value)
+                    onPreview?.({ hdrPath: e.target.value })
+                  }}
+                  className="adm-select"
+                >
                   <option value="">-- 选择 --</option>
                   {hdrList.map((f) => (
                     <option key={f} value={`/assets/hdr/${f}`}>{f}</option>
                   ))}
                 </select>
+              </label>
+              <label>亮度
+                <div className="adm-bright-row">
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={Math.round(hdrBrightness * 100)}
+                    onChange={(e) => {
+                      const v = Number(e.target.value) / 100
+                      setHdrBrightness(v)
+                      onPreview?.({ hdrBrightness: v })
+                    }}
+                  />
+                  <span>{hdrBrightness.toFixed(1)}</span>
+                </div>
               </label>
             </>
           )}

@@ -107,7 +107,17 @@ function ImageBackground({ path }: { path: string }) {
 }
 
 // 光源（HDR 环境 + 半球 + 主/补方向光）
-function Lights({ bgMode = 'gradient', refreshKey = 0 }: { bgMode?: string; refreshKey?: number }) {
+function Lights({
+  bgMode = 'gradient',
+  refreshKey = 0,
+  hdrPath,
+  brightness = 1,
+}: {
+  bgMode?: string
+  refreshKey?: number
+  hdrPath?: string
+  brightness?: number
+}) {
   return (
     <>
       <Env
@@ -119,6 +129,8 @@ function Lights({ bgMode = 'gradient', refreshKey = 0 }: { bgMode?: string; refr
         bgIntensity={0.4}
         bgBlur={0}
         refreshKey={refreshKey}
+        hdrPath={hdrPath}
+        brightness={brightness}
       />
       <hemisphereLight args={['#ffffff', '#404040', 1.15]} />
       <directionalLight position={[5, 8, 5]} intensity={2.35} color="#ffd9c6" castShadow shadow-mapSize={[2048, 2048]} />
@@ -350,8 +362,22 @@ function Post2() {
   )
 }
 
-// 场景根组件：模型 + 滚动驱动相机 + 眼睛跟随
-export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
+// 场景根组件：模型 + 滚动驱动相机 + 眼睛跟随。preview 为实时预览配置
+export default function Scene({
+  refreshKey = 0,
+  preview,
+}: {
+  refreshKey?: number
+  preview?: {
+    modelPath: string
+    hdrPath: string
+    hdrBrightness: number
+    bgMode: string
+    gradTop: string
+    gradBottom: string
+    bgImage: string
+  }
+}) {
   const focusRef = useRef(new THREE.Vector3(0, 1.3, 0))
   const frameRef = useRef(0)
   const [modelPath, setModelPath] = useState('/static/uploads/people_1785471786.glb')
@@ -361,8 +387,19 @@ export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
   const [gradBottom, setGradBottom] = useState('#20283a')
   const [bgImage, setBgImage] = useState('')
 
-  // 从配置读取模型路径 + 相机停靠点 + 背景设置
+  // 从配置读取模型路径 + 相机停靠点（preview 提供背景实时值）
   useEffect(() => {
+    if (preview) {
+      setModelPath(preview.modelPath)
+      setBgMode(preview.bgMode)
+      setGradTop(preview.gradTop)
+      setGradBottom(preview.gradBottom)
+      setBgImage(preview.bgImage)
+    }
+  }, [preview])
+
+  useEffect(() => {
+    if (preview) return
     fetchConfig().then((cfg) => {
       if (cfg.model_path) setModelPath(cfg.model_path)
       const stops = parseCameraPresets(cfg.camera_presets)
@@ -378,12 +415,14 @@ export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
     // 履历锚点数由 App 的数据驱动，这里默认按停靠点数
   }, [refreshKey])
 
+  const effBright = preview ? preview.hdrBrightness : 1
+
   return (
     <>
       {bgMode === 'gradient' && <GradientBackground top={gradTop} bottom={gradBottom} />}
       {bgMode === 'image' && bgImage && <ImageBackground path={bgImage} />}
       <Suspense fallback={null}>
-        <Lights bgMode={bgMode} refreshKey={refreshKey} />
+        <Lights bgMode={bgMode} refreshKey={refreshKey} hdrPath={preview?.hdrPath} brightness={effBright} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
       </Suspense>
       <Post2 />

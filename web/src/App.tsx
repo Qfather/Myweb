@@ -69,6 +69,16 @@ export default function App() {
   const [heroRight, setHeroRight] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
   const [socials, setSocials] = useState<SocialLink[]>([])
+  // 场景预览配置（实时同步到 3D 场景）
+  const [preview, setPreview] = useState({
+    modelPath: '/static/uploads/me_test.glb',
+    hdrPath: '/assets/hdr/森林.exr',
+    hdrBrightness: 1,
+    bgMode: 'gradient',
+    gradTop: '#0a0e16',
+    gradBottom: '#20283a',
+    bgImage: '',
+  })
   const { scrollY } = useScroll()
   const worksRef = useRef(null)
 
@@ -82,7 +92,21 @@ export default function App() {
       setHeroBl(cfg.hero_bl || '')
       setHeroRight(cfg.hero_right || '')
       setHeroFrame(cfg.hero_frame || 'on')
+      setPreview({
+        modelPath: cfg.model_path || '/static/uploads/me_test.glb',
+        hdrPath: cfg.hdr_path || '/assets/hdr/森林.exr',
+        hdrBrightness: cfg.hdr_brightness ? parseFloat(cfg.hdr_brightness) : 1,
+        bgMode: cfg.bg_mode || 'gradient',
+        gradTop: cfg.gradient_top || '#0a0e16',
+        gradBottom: cfg.gradient_bottom || '#20283a',
+        bgImage: cfg.bg_image || '',
+      })
     })
+  }, [])
+
+  // 实时预览：侧边栏改动 → 立即应用到场景
+  const onPreview = useCallback((partial: Partial<typeof preview>) => {
+    setPreview((p) => ({ ...p, ...partial }))
   }, [])
 
   useEffect(() => {
@@ -121,7 +145,7 @@ export default function App() {
           <color attach="background" args={['#0a0e16']} />
           <Suspense fallback={null}>
             <Backdrop />
-            <Scene refreshKey={refreshKey} />
+            <Scene refreshKey={refreshKey} preview={preview} />
           </Suspense>
         </Canvas>
       </div>
@@ -188,7 +212,7 @@ export default function App() {
               transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <button className="adm-close" onClick={() => setAdminOpen(false)}>✕</button>
-              <AdminPanel onSaved={onSaved} />
+              <AdminPanel onSaved={onSaved} preview={preview} onPreview={onPreview} />
             </motion.aside>
           </>
         )}
