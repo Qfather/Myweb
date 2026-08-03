@@ -16,6 +16,12 @@ html {
   scroll-behavior: smooth;
   /* 禁用触底/触顶橡皮筋回弹：必须落在根滚动元素 html 上才在各浏览器可靠生效 */
   overscroll-behavior: none;
+  /* 隐藏全局滚动条（保留滚动功能，由 3D 相机和内容位移响应） */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
 }
 
 html,
