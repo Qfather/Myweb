@@ -367,13 +367,12 @@ function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxInte
         luminanceSmoothing={0.3}
       />
       <Vignette key="vig" enabled={fxType === 'vignette'} eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />
-      <Scanline key="scan" enabled={fxType === 'scanline'} density={0.3 + fxIntensity * 2.2} />
+      <Scanline key="scan" density={fxType === 'scanline' ? 0.3 + fxIntensity * 2.2 : 0} />
       <DepthOfField
         key="dof"
-        enabled={fxType === 'dof'}
         focusDistance={0.02}
         focalLength={0.04 + (1 - fxIntensity) * 0.05}
-        bokehScale={fxIntensity * 12}
+        bokehScale={fxType === 'dof' ? fxIntensity * 12 : 0}
         height={480}
       />
       <ChromaticAberration
