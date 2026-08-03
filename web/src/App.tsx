@@ -65,6 +65,7 @@ function Hero({ profile, cueOpacity }: { profile: Profile | null; cueOpacity: Mo
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [adminOpen, setAdminOpen] = useState(false)
+  const [fxVisible, setFxVisible] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [heroTr, setHeroTr] = useState('')
   const [heroBl, setHeroBl] = useState('')
@@ -191,28 +192,45 @@ export default function App() {
       <SocialBar socials={socials} />
 
       <NoiseOverlay enabled={preview.fxType === 'noise'} opacity={preview.fxIntensity} />
-      <EffectBar
-        fxType={preview.fxType}
-        fxIntensity={preview.fxIntensity}
-        onSelect={(id) => onPreview({ fxType: id })}
-        onIntensity={(v) => onPreview({ fxIntensity: v })}
-      />
-      {preview.bgMode === 'hdr' && (
-        <HdrSliders
-          brightness={preview.hdrBrightness}
-          rotation={preview.hdrRotation}
-          onBrightness={(v) => onPreview({ hdrBrightness: v })}
-          onRotation={(v) => onPreview({ hdrRotation: v })}
-        />
+      {fxVisible && (
+        <>
+          <EffectBar
+            fxType={preview.fxType}
+            fxIntensity={preview.fxIntensity}
+            onSelect={(id) => onPreview({ fxType: id })}
+            onIntensity={(v) => onPreview({ fxIntensity: v })}
+          />
+          {preview.bgMode === 'hdr' && (
+            <HdrSliders
+              brightness={preview.hdrBrightness}
+              rotation={preview.hdrRotation}
+              onBrightness={(v) => onPreview({ hdrBrightness: v })}
+              onRotation={(v) => onPreview({ hdrRotation: v })}
+            />
+          )}
+        </>
       )}
 
-      {/* 右上角管理按钮 */}
-      <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      </button>
+      {/* 右下角：魔术按钮 + 管理按钮 */}
+      <div className="corner-btns">
+        <button
+          className={`adm-magic${fxVisible ? ' active' : ''}`}
+          onClick={() => setFxVisible((v) => !v)}
+          title="效果调节"
+          aria-label="效果调节"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" />
+            <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z" />
+          </svg>
+        </button>
+        <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+      </div>
 
       <main className="content">
         <Hero profile={profile} cueOpacity={cueOpacity} />
