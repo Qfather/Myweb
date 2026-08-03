@@ -1631,7 +1631,7 @@ canvas {
 /* ====== 右侧管理面板 ====== */
 .adm-gear {
   position: fixed;
-  top: 20px;
+  bottom: 24px;
   right: 24px;
   z-index: 60;
   width: 40px;
