@@ -15,6 +15,7 @@ export default function Env({
   asBackground,
   bgIntensity,
   bgBlur,
+  refreshKey = 0,
 }: {
   intensity: number
   rotationX: number
@@ -23,14 +24,16 @@ export default function Env({
   asBackground: boolean
   bgIntensity: number
   bgBlur: number
+  refreshKey?: number
 }) {
   const scene = useThree((s) => s.scene)
   const [texture, setTexture] = useState<THREE.Texture | null>(null)
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
 
-  // 手动加载环境贴图（绕开 useLoader 的 loader 类型缓存问题）
+  // 手动加载环境贴图（绕开 useLoader 的 loader 类型缓存问题）；refreshKey 变化时重新加载
   useEffect(() => {
     let cancelled = false
+    setTexture(null)
     fetchConfig().then((cfg) => {
       const path = cfg.hdr_path || '/assets/hdr/森林.exr'
       if (cancelled) return
@@ -53,7 +56,7 @@ export default function Env({
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [refreshKey])
 
   const initialBg = useRef<any>(null)
   useEffect(() => {

@@ -107,7 +107,7 @@ function ImageBackground({ path }: { path: string }) {
 }
 
 // 光源（HDR 环境 + 半球 + 主/补方向光）
-function Lights({ bgMode = 'gradient' }: { bgMode?: string }) {
+function Lights({ bgMode = 'gradient', refreshKey = 0 }: { bgMode?: string; refreshKey?: number }) {
   return (
     <>
       <Env
@@ -118,6 +118,7 @@ function Lights({ bgMode = 'gradient' }: { bgMode?: string }) {
         asBackground={bgMode === 'hdr'}
         bgIntensity={0.4}
         bgBlur={0}
+        refreshKey={refreshKey}
       />
       <hemisphereLight args={['#ffffff', '#404040', 1.15]} />
       <directionalLight position={[5, 8, 5]} intensity={2.35} color="#ffd9c6" castShadow shadow-mapSize={[2048, 2048]} />
@@ -382,7 +383,7 @@ export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
       {bgMode === 'gradient' && <GradientBackground top={gradTop} bottom={gradBottom} />}
       {bgMode === 'image' && bgImage && <ImageBackground path={bgImage} />}
       <Suspense fallback={null}>
-        <Lights bgMode={bgMode} />
+        <Lights bgMode={bgMode} refreshKey={refreshKey} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
       </Suspense>
       <Post2 />

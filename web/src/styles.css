@@ -1918,7 +1918,7 @@ canvas {
   left: 44px;
   z-index: 20;
   display: flex;
-  gap: 16px;
+  gap: 8px;
   align-items: center;
 }
 .social-icon {
