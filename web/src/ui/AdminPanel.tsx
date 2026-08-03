@@ -62,7 +62,7 @@ export default function AdminPanel({
 }) {
   const [loggedIn, setLoggedIn] = useState(false)
   const [pwd, setPwd] = useState('')
-  const [tab, setTab] = useState<'profile' | 'exps' | 'works' | 'bg'>('profile')
+  const [tab, setTab] = useState<'profile' | 'exps' | 'works' | 'bg' | 'model'>('profile')
 
   // 表单状态
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -180,7 +180,6 @@ export default function AdminPanel({
     })
     if (r.code === 0) {
       await api('PUT', '/admin/config', {
-        model_path: modelPath,
         hdr_path: hdrPath,
         hdr_brightness: String(hdrBrightness),
         hdr_rotation: String(hdrRotation),
@@ -238,6 +237,14 @@ export default function AdminPanel({
     }
   }
 
+  async function saveModel() {
+    const r = await api('PUT', '/admin/config', { model_path: modelPath })
+    if (r.code === 0) {
+      flash('模型已保存')
+      onSaved()
+    }
+  }
+
   async function delWork(id: number) {
     await api('DELETE', `/admin/works/${id}`)
     loadAll()
@@ -288,6 +295,7 @@ export default function AdminPanel({
         <button className={tab === 'exps' ? 'on' : ''} onClick={() => setTab('exps')}>经历</button>
         <button className={tab === 'works' ? 'on' : ''} onClick={() => setTab('works')}>作品</button>
         <button className={tab === 'bg' ? 'on' : ''} onClick={() => setTab('bg')}>背景</button>
+        <button className={tab === 'model' ? 'on' : ''} onClick={() => setTab('model')}>模型</button>
         <button className="adm-logout" onClick={logout}>退出</button>
       </div>
       {msg && <p className="adm-msg">{msg}</p>}
@@ -299,9 +307,6 @@ export default function AdminPanel({
           </label>
           <label>简介
             <textarea value={profile?.bio || ''} onChange={(e) => setProfile({ ...(profile as Profile), bio: e.target.value })} rows={3} />
-          </label>
-          <label>邮箱
-            <input value={profile?.email || ''} onChange={(e) => setProfile({ ...(profile as Profile), email: e.target.value })} />
           </label>
 
           <h4>社交平台</h4>
@@ -347,12 +352,6 @@ export default function AdminPanel({
           })}
           <button className="adm-add" onClick={() => setSocials([...socials, { name: '', icon: '', url: '', type: 'link', qrcode: '' }])}>+ 添加社交</button>
 
-          <h4>模型</h4>
-          <label>GLB 路径
-            <input value={modelPath} onChange={(e) => setModelPath(e.target.value)} />
-          </label>
-          <input type="file" accept=".glb" onChange={(e) => uploadFile(e, 'model')} />
-
           <h4>首屏装饰</h4>
           <div className="adm-bg-modes">
             <button className={heroFrame === 'on' ? 'on' : ''} onClick={() => setHeroFrame('on')}>显示边框</button>
@@ -360,9 +359,6 @@ export default function AdminPanel({
           </div>
           <label>右上角文字（默认 Portfolio — 年份）
             <input value={heroTr} onChange={(e) => setHeroTr(e.target.value)} placeholder="Portfolio — 2026" />
-          </label>
-          <label>左下角文字（默认 Code · Art · Play）
-            <input value={heroBl} onChange={(e) => setHeroBl(e.target.value)} placeholder="Code · Art · Play" />
           </label>
           <label>右侧竖排文字（默认邮箱）
             <input value={heroRight} onChange={(e) => setHeroRight(e.target.value)} placeholder="email" />
@@ -498,6 +494,17 @@ export default function AdminPanel({
           )}
 
           <button className="adm-save" onClick={saveProfile}>保存背景</button>
+        </div>
+      )}
+
+      {tab === 'model' && (
+        <div className="adm-form">
+          <h4>模型</h4>
+          <label>GLB 路径
+            <input value={modelPath} onChange={(e) => setModelPath(e.target.value)} />
+          </label>
+          <input type="file" accept=".glb,.gltf" onChange={(e) => uploadFile(e, 'model')} />
+          <button className="adm-save" onClick={saveModel}>保存模型</button>
         </div>
       )}
 
