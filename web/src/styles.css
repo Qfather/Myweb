@@ -44,19 +44,8 @@ canvas {
 }
 
 /* ---------- 固定 3D 背景 + 滚动渐暗 + 内容层 ---------- */
-.app-shell {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow-x: hidden;
-  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.app-shell.shrunk {
-  width: 60%;
-}
-
 .scene-bg {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none; /* 事件穿透，滚动与视差互不干扰 */
@@ -68,7 +57,7 @@ canvas {
 }
 
 .scrim {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
@@ -90,7 +79,7 @@ canvas {
 /* 固定磨砂右轨：上/右/下溢出屏幕外（无可见边），仅左缘柔化淡入场景；
    blur 取背后的场景，文字在 .content(z10) 之上保持清晰 */
 .glass-rail {
-  position: absolute;
+  position: fixed;
   top: -2px;
   right: -2px;
   bottom: -2px;
@@ -197,7 +186,7 @@ canvas {
 /* ---------- 首屏装饰画框 + 角标元数据 ---------- */
 .hero-chrome {
   --m: clamp(16px, 2.4vh, 30px);
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 12;
   pointer-events: none;
@@ -853,7 +842,7 @@ canvas {
 /* 固定在 3D 之上的蒙层：进入作品区时随滚动逐渐变暗 + 模糊背景，
    位于 canvas 之上、内容(.content z10)之下，故只虚化 3D、不影响文字 */
 .stage-fog {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 4;
   pointer-events: none;
@@ -1641,7 +1630,7 @@ canvas {
 
 /* ====== 右侧管理面板 ====== */
 .adm-gear {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 24px;
   z-index: 60;

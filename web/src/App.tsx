@@ -96,77 +96,84 @@ export default function App() {
     <>
       <LoadingScreen />
 
-      <div className={`app-shell${adminOpen ? ' shrunk' : ''}`}>
-        <div className="scene-bg">
-          <Canvas
-            shadows={{ type: THREE.PCFShadowMap }}
-            dpr={[1, 1.5]}
-            camera={{ position: [0, 5, 19], fov: 39, near: 0.1, far: 500 }}
-            gl={{ antialias: false, stencil: false, depth: true, toneMapping: THREE.ACESFilmicToneMapping }}
-          >
-            <color attach="background" args={['#0a0e16']} />
-            <Suspense fallback={null}>
-              <Backdrop />
-              <Scene />
-            </Suspense>
-          </Canvas>
-        </div>
-
-        <motion.div className="scrim" style={{ opacity: scrimOpacity }} aria-hidden="true" />
-
-        <motion.div
-          className="stage-fog"
-          style={{ background: fogBg }}
-          aria-hidden="true"
-        />
-
-        <motion.div className="glass-rail" style={{ opacity: railOpacity }} aria-hidden="true" />
-
-        <motion.div className="hero-chrome" style={{ opacity: heroChromeOpacity }} aria-hidden="true">
-          <div className="hero-frame" />
-          <span className="hero-mark tl">+</span>
-          <span className="hero-mark tr">+</span>
-          <span className="hero-mark bl">+</span>
-          <span className="hero-mark br">+</span>
-          <div className="hero-meta hm-tl">
-            <span className="hm-name">{profile?.nickname || 'My'}</span>
-            <span>Personal Portfolio</span>
-          </div>
-          <div className="hero-meta hm-tr">Portfolio — {new Date().getFullYear()}</div>
-          <div className="hero-meta hm-bl">Code · Art · Play</div>
-          <div className="hero-meta hm-right">{profile?.email || ''}</div>
-        </motion.div>
-
-        {/* 右上角管理按钮 */}
-        <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </button>
-
-        <main className="content">
-          <Hero profile={profile} cueOpacity={cueOpacity} />
-          <Resume refreshKey={refreshKey} />
-          <Works innerRef={worksRef} refreshKey={refreshKey} />
-        </main>
+      <div className="scene-bg">
+        <Canvas
+          shadows={{ type: THREE.PCFShadowMap }}
+          dpr={[1, 1.5]}
+          camera={{ position: [0, 5, 19], fov: 39, near: 0.1, far: 500 }}
+          gl={{ antialias: false, stencil: false, depth: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        >
+          <color attach="background" args={['#0a0e16']} />
+          <Suspense fallback={null}>
+            <Backdrop />
+            <Scene />
+          </Suspense>
+        </Canvas>
       </div>
+
+      <motion.div className="scrim" style={{ opacity: scrimOpacity }} aria-hidden="true" />
+
+      <motion.div
+        className="stage-fog"
+        style={{ background: fogBg }}
+        aria-hidden="true"
+      />
+
+      <motion.div className="glass-rail" style={{ opacity: railOpacity }} aria-hidden="true" />
+
+      <motion.div className="hero-chrome" style={{ opacity: heroChromeOpacity }} aria-hidden="true">
+        <div className="hero-frame" />
+        <span className="hero-mark tl">+</span>
+        <span className="hero-mark tr">+</span>
+        <span className="hero-mark bl">+</span>
+        <span className="hero-mark br">+</span>
+        <div className="hero-meta hm-tl">
+          <span className="hm-name">{profile?.nickname || 'My'}</span>
+          <span>Personal Portfolio</span>
+        </div>
+        <div className="hero-meta hm-tr">Portfolio — {new Date().getFullYear()}</div>
+        <div className="hero-meta hm-bl">Code · Art · Play</div>
+        <div className="hero-meta hm-right">{profile?.email || ''}</div>
+      </motion.div>
 
       <NoiseOverlay />
 
-      {/* 右侧滑出管理面板 */}
+      {/* 右上角管理按钮 */}
+      <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+
+      <main className="content">
+        <Hero profile={profile} cueOpacity={cueOpacity} />
+        <Resume refreshKey={refreshKey} />
+        <Works innerRef={worksRef} refreshKey={refreshKey} />
+      </main>
+
+      {/* 右侧滑出管理面板（覆盖式） */}
       <AnimatePresence>
         {adminOpen && (
-          <motion.aside
-            className="adm-drawer"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <button className="adm-close" onClick={() => setAdminOpen(false)}>✕</button>
-            <AdminPanel onSaved={onSaved} />
-          </motion.aside>
+          <>
+            <motion.div
+              className="adm-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setAdminOpen(false)}
+            />
+            <motion.aside
+              className="adm-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <button className="adm-close" onClick={() => setAdminOpen(false)}>✕</button>
+              <AdminPanel onSaved={onSaved} />
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </>
