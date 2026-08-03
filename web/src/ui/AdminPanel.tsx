@@ -49,6 +49,7 @@ export default function AdminPanel({
   preview?: {
     hdrPath: string
     hdrBrightness: number
+    hdrRotation: number
     bgMode: string
     gradTop: string
     gradBottom: string

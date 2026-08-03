@@ -43,6 +43,7 @@ export interface SiteConfig {
   model_path?: string
   hdr_path?: string
   hdr_brightness?: string
+  hdr_rotation?: string
   camera_presets?: string
   bg_mode?: string          // 'gradient' | 'hdr' | 'image'
   gradient_top?: string     // 渐变顶部颜色
