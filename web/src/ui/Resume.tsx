@@ -103,7 +103,7 @@ function SocialBlock({ links }: { links: { name: string; icon: string; url: stri
   )
 }
 
-export default function Resume() {
+export default function Resume({ refreshKey = 0 }: { refreshKey?: number }) {
   const [entries, setEntries] = useState<ResumeEntry[]>([])
   const [socials, setSocials] = useState<{ name: string; icon: string; url: string; type: string; qrcode: string }[]>([])
 
@@ -112,7 +112,7 @@ export default function Resume() {
     fetchProfile().then((p) => {
       if (p) setSocials(parseSocialLinks(p.social_links))
     })
-  }, [])
+  }, [refreshKey])
 
   return (
     <section className="resume">

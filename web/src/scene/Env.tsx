@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { useThree, useLoader } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js'
 import * as THREE from 'three'
 import { fetchConfig } from '../api'
 
-// 环境贴图作为光照 / 反射环境（IBL）。路径从后端配置读取（Assets/hdr/*）。
+// 环境贴图作为光照 / 反射环境（IBL）。路径从后端配置读取（Assets/hdr/*），
+// 按扩展名选择解析器（.exr→EXRLoader，.hdr→RGBELoader，其余→TextureLoader）。
 export default function Env({
   intensity,
   rotationX,
@@ -24,25 +25,44 @@ export default function Env({
   bgBlur: number
 }) {
   const scene = useThree((s) => s.scene)
-  const [hdrPath, setHdrPath] = useState<string | null>(null)
+  const [texture, setTexture] = useState<THREE.Texture | null>(null)
+  const [loadedPath, setLoadedPath] = useState<string | null>(null)
 
+  // 手动加载环境贴图（绕开 useLoader 的 loader 类型缓存问题）
   useEffect(() => {
+    let cancelled = false
     fetchConfig().then((cfg) => {
-      setHdrPath(cfg.hdr_path || '/assets/hdr/森林.exr')
+      const path = cfg.hdr_path || '/assets/hdr/森林.exr'
+      if (cancelled) return
+      let loader: any
+      if (path.match(/\.exr$/i)) loader = new EXRLoader()
+      else if (path.match(/\.hdr$/i)) loader = new RGBELoader()
+      else loader = new THREE.TextureLoader()
+      loader.load(
+        path,
+        (t: THREE.Texture) => {
+          if (!cancelled) {
+            setTexture(t)
+            setLoadedPath(path)
+          }
+        },
+        undefined,
+        (err: any) => console.warn('环境贴图加载失败:', path, err?.message || err)
+      )
     })
+    return () => {
+      cancelled = true
+    }
   }, [])
-
-  const texture = useLoader(
-    hdrPath && hdrPath.match(/\.exr$/i) ? EXRLoader : RGBELoader,
-    hdrPath || '/assets/hdr/森林.exr'
-  )
 
   const initialBg = useRef<any>(null)
   useEffect(() => {
     initialBg.current = scene.background
   }, [scene])
 
+  // 作为光照/反射环境
   useEffect(() => {
+    if (!texture) return
     texture.mapping = THREE.EquirectangularReflectionMapping
     scene.environment = texture
     return () => {
@@ -62,8 +82,9 @@ export default function Env({
     scene.backgroundRotation.set(x, y, z)
   }, [scene, rotationX, rotationY, rotationZ])
 
+  // 作为可见背景（可选）
   useEffect(() => {
-    scene.background = asBackground ? texture : initialBg.current
+    scene.background = asBackground && texture ? texture : initialBg.current
     return () => {
       scene.background = initialBg.current
     }
@@ -74,5 +95,6 @@ export default function Env({
     scene.backgroundBlurriness = bgBlur
   }, [scene, bgIntensity, bgBlur])
 
+  void loadedPath
   return null
 }

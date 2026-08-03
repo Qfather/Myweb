@@ -31,12 +31,12 @@ function WorkCard({ work, index }: { work: Work; index: number }) {
   )
 }
 
-export default function Works({ innerRef }: { innerRef: Ref<HTMLElement> }) {
+export default function Works({ innerRef, refreshKey = 0 }: { innerRef: Ref<HTMLElement>; refreshKey?: number }) {
   const [works, setWorks] = useState<Work[]>([])
 
   useEffect(() => {
     fetchWorks().then(setWorks)
-  }, [])
+  }, [refreshKey])
 
   const galleryRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
