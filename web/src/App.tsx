@@ -106,7 +106,7 @@ export default function App() {
           <color attach="background" args={['#0a0e16']} />
           <Suspense fallback={null}>
             <Backdrop />
-            <Scene />
+            <Scene refreshKey={refreshKey} />
           </Suspense>
         </Canvas>
       </div>

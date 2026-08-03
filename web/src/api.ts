@@ -44,6 +44,9 @@ export interface SiteConfig {
   hdr_path?: string
   hdr_brightness?: string
   camera_presets?: string
+  bg_mode?: string          // 'gradient' | 'hdr'
+  gradient_top?: string     // 渐变顶部颜色
+  gradient_bottom?: string  // 渐变底部颜色
 }
 
 export async function fetchProfile(): Promise<Profile | null> {

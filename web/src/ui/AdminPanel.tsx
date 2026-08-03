@@ -26,7 +26,7 @@ async function api(method: string, url: string, body?: any) {
 export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [loggedIn, setLoggedIn] = useState(false)
   const [pwd, setPwd] = useState('')
-  const [tab, setTab] = useState<'profile' | 'exps' | 'works'>('profile')
+  const [tab, setTab] = useState<'profile' | 'exps' | 'works' | 'bg'>('profile')
 
   // 表单状态
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -35,6 +35,9 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [socials, setSocials] = useState<SocialLink[]>([])
   const [modelPath, setModelPath] = useState('')
   const [hdrPath, setHdrPath] = useState('')
+  const [bgMode, setBgMode] = useState('gradient')
+  const [gradTop, setGradTop] = useState('#0a0e16')
+  const [gradBottom, setGradBottom] = useState('#20283a')
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -52,6 +55,9 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
     fetchConfig().then((c) => {
       setModelPath(c.model_path || '')
       setHdrPath(c.hdr_path || '')
+      setBgMode(c.bg_mode || 'gradient')
+      setGradTop(c.gradient_top || '#0a0e16')
+      setGradBottom(c.gradient_bottom || '#20283a')
     })
   }
 
@@ -111,7 +117,13 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       social_links: JSON.stringify(socials),
     })
     if (r.code === 0) {
-      await api('PUT', '/admin/config', { model_path: modelPath, hdr_path: hdrPath })
+      await api('PUT', '/admin/config', {
+        model_path: modelPath,
+        hdr_path: hdrPath,
+        bg_mode: bgMode,
+        gradient_top: gradTop,
+        gradient_bottom: gradBottom,
+      })
       flash('已保存')
       onSaved()
     }
@@ -174,6 +186,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
         <button className={tab === 'profile' ? 'on' : ''} onClick={() => setTab('profile')}>资料</button>
         <button className={tab === 'exps' ? 'on' : ''} onClick={() => setTab('exps')}>经历</button>
         <button className={tab === 'works' ? 'on' : ''} onClick={() => setTab('works')}>作品</button>
+        <button className={tab === 'bg' ? 'on' : ''} onClick={() => setTab('bg')}>背景</button>
         <button className="adm-logout" onClick={logout}>退出</button>
       </div>
       {msg && <p className="adm-msg">{msg}</p>}
@@ -200,17 +213,53 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           ))}
           <button className="adm-add" onClick={() => setSocials([...socials, { name: '', icon: '', url: '', type: 'link', qrcode: '' }])}>+ 添加社交</button>
 
-          <h4>模型 / 环境</h4>
+          <h4>模型</h4>
           <label>GLB 路径
             <input value={modelPath} onChange={(e) => setModelPath(e.target.value)} />
           </label>
           <input type="file" accept=".glb" onChange={(e) => uploadFile(e, 'model')} />
-          <label>HDR 路径
-            <input value={hdrPath} onChange={(e) => setHdrPath(e.target.value)} />
-          </label>
-          <input type="file" accept=".hdr,.exr,.png" onChange={(e) => uploadFile(e, 'hdr')} />
 
           <button className="adm-save" onClick={saveProfile}>保存资料</button>
+        </div>
+      )}
+
+      {tab === 'bg' && (
+        <div className="adm-form">
+          <h4>背景模式</h4>
+          <div className="adm-bg-modes">
+            <button className={bgMode === 'gradient' ? 'on' : ''} onClick={() => setBgMode('gradient')}>渐变背景</button>
+            <button className={bgMode === 'hdr' ? 'on' : ''} onClick={() => setBgMode('hdr')}>HDR 背景</button>
+          </div>
+
+          {bgMode === 'gradient' && (
+            <>
+              <h4>渐变颜色</h4>
+              <div className="adm-color-row">
+                <label>顶部
+                  <input type="color" value={gradTop} onChange={(e) => setGradTop(e.target.value)} />
+                  <input value={gradTop} onChange={(e) => setGradTop(e.target.value)} />
+                </label>
+              </div>
+              <div className="adm-color-row">
+                <label>底部
+                  <input type="color" value={gradBottom} onChange={(e) => setGradBottom(e.target.value)} />
+                  <input value={gradBottom} onChange={(e) => setGradBottom(e.target.value)} />
+                </label>
+              </div>
+            </>
+          )}
+
+          {bgMode === 'hdr' && (
+            <>
+              <h4>HDR 环境贴图</h4>
+              <label>HDR 路径
+                <input value={hdrPath} onChange={(e) => setHdrPath(e.target.value)} />
+              </label>
+              <input type="file" accept=".hdr,.exr,.png" onChange={(e) => uploadFile(e, 'hdr')} />
+            </>
+          )}
+
+          <button className="adm-save" onClick={saveProfile}>保存背景</button>
         </div>
       )}
 

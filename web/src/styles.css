@@ -1852,3 +1852,47 @@ canvas {
   font-size: 11px;
   color: var(--muted);
 }
+
+/* ====== 背景设置 ====== */
+.adm-bg-modes {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.adm-bg-modes button {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.adm-bg-modes button.on {
+  background: #ffd9b3;
+  color: #14181f;
+  border-color: #ffd9b3;
+  font-weight: 600;
+}
+.adm-color-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row;
+  font-size: 12px;
+  color: var(--muted);
+}
+.adm-color-row input[type='color'] {
+  width: 40px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.adm-color-row input[type='text'] {
+  flex: 1;
+}

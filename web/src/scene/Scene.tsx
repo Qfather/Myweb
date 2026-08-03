@@ -46,10 +46,8 @@ function parseCameraPresets(raw: string | undefined): CameraStop[] | null {
   }
 }
 
-// 渐变背景球（两端颜色可调）
-function GradientBackground() {
-  const top = '#0a0e16'
-  const bottom = '#20283a'
+// 渐变背景球（两端颜色可调，由配置驱动）
+function GradientBackground({ top = '#0a0e16', bottom = '#20283a' }: { top?: string; bottom?: string }) {
   const steep = 1.0
 
   const uniforms = useMemo(
@@ -60,9 +58,10 @@ function GradientBackground() {
     }),
     []
   )
-  uniforms.uTop.value.set(top)
-  uniforms.uBottom.value.set(bottom)
-  uniforms.uSteep.value = steep
+  useEffect(() => {
+    uniforms.uTop.value.set(top)
+    uniforms.uBottom.value.set(bottom)
+  }, [uniforms, top, bottom])
 
   return (
     <mesh scale={100}>
@@ -94,7 +93,7 @@ function GradientBackground() {
 }
 
 // 光源（HDR 环境 + 半球 + 主/补方向光）
-function Lights() {
+function Lights({ bgMode = 'gradient' }: { bgMode?: string }) {
   return (
     <>
       <Env
@@ -102,7 +101,7 @@ function Lights() {
         rotationX={0}
         rotationY={0}
         rotationZ={0}
-        asBackground={false}
+        asBackground={bgMode === 'hdr'}
         bgIntensity={0.4}
         bgBlur={0}
       />
@@ -337,13 +336,16 @@ function Post2() {
 }
 
 // 场景根组件：模型 + 滚动驱动相机 + 眼睛跟随
-export default function Scene() {
+export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
   const focusRef = useRef(new THREE.Vector3(0, 1.3, 0))
   const frameRef = useRef(0)
   const [modelPath, setModelPath] = useState('/static/uploads/people_1785471786.glb')
   const [stopCount, setStopCount] = useState(4)
+  const [bgMode, setBgMode] = useState('gradient')
+  const [gradTop, setGradTop] = useState('#0a0e16')
+  const [gradBottom, setGradBottom] = useState('#20283a')
 
-  // 从配置读取模型路径 + 相机停靠点 + 履历数
+  // 从配置读取模型路径 + 相机停靠点 + 背景设置
   useEffect(() => {
     fetchConfig().then((cfg) => {
       if (cfg.model_path) setModelPath(cfg.model_path)
@@ -352,15 +354,18 @@ export default function Scene() {
         CAMERA_STOPS = stops
         setStopCount(stops.length - 1)
       }
+      if (cfg.bg_mode) setBgMode(cfg.bg_mode)
+      if (cfg.gradient_top) setGradTop(cfg.gradient_top)
+      if (cfg.gradient_bottom) setGradBottom(cfg.gradient_bottom)
     })
     // 履历锚点数由 App 的数据驱动，这里默认按停靠点数
-  }, [])
+  }, [refreshKey])
 
   return (
     <>
-      <GradientBackground />
+      <GradientBackground top={gradTop} bottom={gradBottom} />
       <Suspense fallback={null}>
-        <Lights />
+        <Lights bgMode={bgMode} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
       </Suspense>
       <Post2 />
