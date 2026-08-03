@@ -5,7 +5,7 @@ import { fetchExperiences, fetchProfile, parseSocialLinks, type Experience } fro
 // 履历数据来自后端「个人经历」，锚点 data-point=p0..pN 与 Scene 的相机停靠点对应
 interface ResumeEntry {
   period: string
-  place: string
+  place?: string
   html?: string
   link?: string
 }
