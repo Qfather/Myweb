@@ -370,7 +370,14 @@ function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxInte
     effects.push(<DepthOfField key="dof" focusDistance={0.02} focalLength={0.04 + (1 - fxIntensity) * 0.05} bokehScale={fxIntensity * 12} height={480} />)
   }
   if (fxType === 'chromatic') {
-    effects.push(<ChromaticAberration key="chrom" offset={new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)} />)
+    effects.push(
+      <ChromaticAberration
+        key="chrom"
+        offset={new THREE.Vector2(fxIntensity * 0.004, fxIntensity * 0.002)}
+        radialModulation={false}
+        modulationOffset={0}
+      />
+    )
   }
   if (fxType === 'pixel') {
     effects.push(<Pixelation key="pixel" granularity={1 + Math.round(fxIntensity * 6)} />)
