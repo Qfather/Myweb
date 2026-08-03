@@ -2155,3 +2155,61 @@ canvas {
   96% { opacity: 0.7; }
   100% { opacity: 0; transform: translateX(40px); }
 }
+
+/* ====== 顶部效果栏 ====== */
+.fx-bar {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: rgba(13, 17, 25, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.fx-item {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+  opacity: 0.7;
+}
+.fx-item img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.fx-item:hover {
+  transform: scale(1.5);
+  opacity: 1;
+  background: rgba(255, 217, 179, 0.15);
+}
+.fx-item.active {
+  opacity: 1;
+  background: rgba(255, 217, 179, 0.22);
+  box-shadow: 0 0 10px rgba(255, 217, 179, 0.25);
+}
+.fx-tooltip {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(13, 17, 25, 0.9);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease;
+}

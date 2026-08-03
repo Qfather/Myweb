@@ -9,6 +9,7 @@ import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import AdminPanel from './ui/AdminPanel'
 import SocialBar from './ui/SocialBar'
+import EffectBar from './ui/EffectBar'
 import { fetchProfile, fetchConfig, parseSocialLinks, type Profile, type SocialLink } from './api'
 
 function Backdrop() {
@@ -189,6 +190,7 @@ export default function App() {
       <SocialBar socials={socials} />
 
       <NoiseOverlay enabled={preview.fxType === 'noise'} opacity={preview.fxIntensity} />
+      <EffectBar fxType={preview.fxType} onSelect={(id) => onPreview({ fxType: id })} />
 
       {/* 右上角管理按钮 */}
       <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
