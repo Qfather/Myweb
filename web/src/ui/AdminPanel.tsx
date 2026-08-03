@@ -78,6 +78,7 @@ export default function AdminPanel({
   const [heroTr, setHeroTr] = useState('')
   const [heroBl, setHeroBl] = useState('')
   const [heroRight, setHeroRight] = useState('')
+  const [heroSub, setHeroSub] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
   const [hdrList, setHdrList] = useState<string[]>([])
   const [hdrBrightness, setHdrBrightness] = useState(1)
@@ -110,6 +111,7 @@ export default function AdminPanel({
       setHeroTr(c.hero_tr || '')
       setHeroBl(c.hero_bl || '')
       setHeroRight(c.hero_right || '')
+      setHeroSub(c.hero_sub || '')
       setHeroFrame(c.hero_frame || 'on')
       setHdrBrightness(c.hdr_brightness ? parseFloat(c.hdr_brightness) : 1)
       setHdrRotation(c.hdr_rotation ? parseFloat(c.hdr_rotation) : 0)
@@ -194,6 +196,7 @@ export default function AdminPanel({
         hero_tr: heroTr,
         hero_bl: heroBl,
         hero_right: heroRight,
+        hero_sub: heroSub,
         hero_frame: heroFrame,
       })
       flash('已保存')
@@ -359,6 +362,9 @@ export default function AdminPanel({
           </div>
           <label>右上角文字（默认 Portfolio — 年份）
             <input value={heroTr} onChange={(e) => setHeroTr(e.target.value)} placeholder="Portfolio — 2026" />
+          </label>
+          <label>左上角副标题（默认 Personal Portfolio）
+            <input value={heroSub} onChange={(e) => setHeroSub(e.target.value)} placeholder="Personal Portfolio" />
           </label>
           <label>右侧竖排文字（默认邮箱）
             <input value={heroRight} onChange={(e) => setHeroRight(e.target.value)} placeholder="email" />

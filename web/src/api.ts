@@ -52,6 +52,7 @@ export interface SiteConfig {
   hero_tr?: string          // 右上装饰文字
   hero_bl?: string          // 左下装饰文字
   hero_right?: string       // 右侧竖排文字
+  hero_sub?: string         // 左上角副标题
   hero_frame?: string       // 边框显示 'on' | 'off'
   noise_enabled?: string
   noise_opacity?: string

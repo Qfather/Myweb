@@ -67,6 +67,7 @@ export default function App() {
   const [heroTr, setHeroTr] = useState('')
   const [heroBl, setHeroBl] = useState('')
   const [heroRight, setHeroRight] = useState('')
+  const [heroSub, setHeroSub] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
   const [socials, setSocials] = useState<SocialLink[]>([])
   // 场景预览配置（实时同步到 3D 场景）
@@ -94,6 +95,7 @@ export default function App() {
       setHeroTr(cfg.hero_tr || '')
       setHeroBl(cfg.hero_bl || '')
       setHeroRight(cfg.hero_right || '')
+      setHeroSub(cfg.hero_sub || '')
       setHeroFrame(cfg.hero_frame || 'on')
       setPreview({
         modelPath: cfg.model_path || '/static/uploads/me_test.glb',
@@ -178,7 +180,7 @@ export default function App() {
         <span className="hero-mark br">+</span>
         <div className="hero-meta hm-tl">
           <span className="hm-name">{profile?.nickname || 'My'}</span>
-          <span>Personal Portfolio</span>
+          <span>{heroSub || 'Personal Portfolio'}</span>
         </div>
         <div className="hero-meta hm-tr">{heroTr || `Portfolio — ${new Date().getFullYear()}`}</div>
         <div className="hero-meta hm-right">{heroRight || profile?.email || ''}</div>
