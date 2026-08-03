@@ -10,6 +10,7 @@ import LoadingScreen from './ui/LoadingScreen'
 import AdminPanel from './ui/AdminPanel'
 import SocialBar from './ui/SocialBar'
 import EffectBar from './ui/EffectBar'
+import HdrSliders from './ui/HdrSliders'
 import { fetchProfile, fetchConfig, parseSocialLinks, type Profile, type SocialLink } from './api'
 
 function Backdrop() {
@@ -196,6 +197,14 @@ export default function App() {
         onSelect={(id) => onPreview({ fxType: id })}
         onIntensity={(v) => onPreview({ fxIntensity: v })}
       />
+      {preview.bgMode === 'hdr' && (
+        <HdrSliders
+          brightness={preview.hdrBrightness}
+          rotation={preview.hdrRotation}
+          onBrightness={(v) => onPreview({ hdrBrightness: v })}
+          onRotation={(v) => onPreview({ hdrRotation: v })}
+        />
+      )}
 
       {/* 右上角管理按钮 */}
       <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">
