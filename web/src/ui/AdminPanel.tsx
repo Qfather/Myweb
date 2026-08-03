@@ -38,6 +38,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [bgMode, setBgMode] = useState('gradient')
   const [gradTop, setGradTop] = useState('#0a0e16')
   const [gradBottom, setGradBottom] = useState('#20283a')
+  const [bgImage, setBgImage] = useState('')
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -58,6 +59,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       setBgMode(c.bg_mode || 'gradient')
       setGradTop(c.gradient_top || '#0a0e16')
       setGradBottom(c.gradient_bottom || '#20283a')
+      setBgImage(c.bg_image || '')
     })
   }
 
@@ -123,6 +125,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
         bg_mode: bgMode,
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
+        bg_image: bgImage,
       })
       flash('已保存')
       onSaved()
@@ -167,7 +170,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
     onSaved()
   }
 
-  async function uploadFile(e: React.ChangeEvent<HTMLInputElement>, kind: 'model' | 'hdr') {
+  async function uploadFile(e: React.ChangeEvent<HTMLInputElement>, kind: 'model' | 'hdr' | 'bgimg') {
     const file = e.target.files?.[0]
     if (!file) return
     const fd = new FormData()
@@ -175,8 +178,9 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
     const r = await (await fetch('/admin/upload', { method: 'POST', credentials: 'include', body: fd })).json()
     if (r.code === 0) {
       if (kind === 'model') setModelPath(r.data.url)
-      else setHdrPath(r.data.url)
-      flash('上传成功，点「保存资料」应用')
+      else if (kind === 'hdr') setHdrPath(r.data.url)
+      else setBgImage(r.data.url)
+      flash('上传成功，点「保存背景」应用')
     }
   }
 
@@ -229,6 +233,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           <div className="adm-bg-modes">
             <button className={bgMode === 'gradient' ? 'on' : ''} onClick={() => setBgMode('gradient')}>渐变背景</button>
             <button className={bgMode === 'hdr' ? 'on' : ''} onClick={() => setBgMode('hdr')}>HDR 背景</button>
+            <button className={bgMode === 'image' ? 'on' : ''} onClick={() => setBgMode('image')}>图片背景</button>
           </div>
 
           {bgMode === 'gradient' && (
@@ -246,6 +251,16 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
                   <input value={gradBottom} onChange={(e) => setGradBottom(e.target.value)} />
                 </label>
               </div>
+            </>
+          )}
+
+          {bgMode === 'image' && (
+            <>
+              <h4>背景图片</h4>
+              <label>图片路径
+                <input value={bgImage} onChange={(e) => setBgImage(e.target.value)} />
+              </label>
+              <input type="file" accept=".png,.jpg,.jpeg,.webp" onChange={(e) => uploadFile(e, 'bgimg')} />
             </>
           )}
 

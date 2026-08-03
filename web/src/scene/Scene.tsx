@@ -1,5 +1,5 @@
 import { Suspense, useMemo, useRef, useEffect, useState, type MutableRefObject } from 'react'
-import { useThree, useFrame } from '@react-three/fiber'
+import { useThree, useFrame, useLoader } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import * as THREE from 'three'
@@ -90,6 +90,20 @@ function GradientBackground({ top = '#0a0e16', bottom = '#20283a' }: { top?: str
       />
     </mesh>
   )
+}
+
+// 图片背景（普通图片铺满视口）
+function ImageBackground({ path }: { path: string }) {
+  const scene = useThree((s) => s.scene)
+  const texture = useLoader(THREE.TextureLoader, path)
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace
+    scene.background = texture
+    return () => {
+      scene.background = null
+    }
+  }, [scene, texture])
+  return null
 }
 
 // 光源（HDR 环境 + 半球 + 主/补方向光）
@@ -344,6 +358,7 @@ export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
   const [bgMode, setBgMode] = useState('gradient')
   const [gradTop, setGradTop] = useState('#0a0e16')
   const [gradBottom, setGradBottom] = useState('#20283a')
+  const [bgImage, setBgImage] = useState('')
 
   // 从配置读取模型路径 + 相机停靠点 + 背景设置
   useEffect(() => {
@@ -357,13 +372,15 @@ export default function Scene({ refreshKey = 0 }: { refreshKey?: number }) {
       if (cfg.bg_mode) setBgMode(cfg.bg_mode)
       if (cfg.gradient_top) setGradTop(cfg.gradient_top)
       if (cfg.gradient_bottom) setGradBottom(cfg.gradient_bottom)
+      if (cfg.bg_image) setBgImage(cfg.bg_image)
     })
     // 履历锚点数由 App 的数据驱动，这里默认按停靠点数
   }, [refreshKey])
 
   return (
     <>
-      <GradientBackground top={gradTop} bottom={gradBottom} />
+      {bgMode === 'gradient' && <GradientBackground top={gradTop} bottom={gradBottom} />}
+      {bgMode === 'image' && bgImage && <ImageBackground path={bgImage} />}
       <Suspense fallback={null}>
         <Lights bgMode={bgMode} />
         <Man2 focusRef={focusRef} frameRef={frameRef} modelPath={modelPath} stopCount={stopCount} />
