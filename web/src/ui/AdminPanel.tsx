@@ -108,16 +108,6 @@ export default function AdminPanel({
       setHdrBrightness(c.hdr_brightness ? parseFloat(c.hdr_brightness) : 1)
       setHdrRotation(c.hdr_rotation ? parseFloat(c.hdr_rotation) : 0)
     })
-    // 用 App 传入的实时预览值初始化
-    if (preview) {
-      setHdrPath(preview.hdrPath)
-      setBgMode(preview.bgMode)
-      setGradTop(preview.gradTop)
-      setGradBottom(preview.gradBottom)
-      setBgImage(preview.bgImage)
-      setHdrBrightness(preview.hdrBrightness)
-      setHdrRotation(preview.hdrRotation)
-    }
     api('GET', '/api/hdr-list').then((r: any) => {
       if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
     })
