@@ -8,7 +8,7 @@ import Resume from './ui/Resume'
 import Works from './ui/Works'
 import LoadingScreen from './ui/LoadingScreen'
 import AdminPanel from './ui/AdminPanel'
-import { fetchProfile, type Profile } from './api'
+import { fetchProfile, fetchConfig, type Profile } from './api'
 
 function Backdrop() {
   return (
@@ -63,11 +63,21 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [adminOpen, setAdminOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [heroTr, setHeroTr] = useState('')
+  const [heroBl, setHeroBl] = useState('')
+  const [heroRight, setHeroRight] = useState('')
+  const [heroFrame, setHeroFrame] = useState('on')
   const { scrollY } = useScroll()
   const worksRef = useRef(null)
 
   const reloadProfile = useCallback(() => {
     fetchProfile().then(setProfile)
+    fetchConfig().then((cfg) => {
+      setHeroTr(cfg.hero_tr || '')
+      setHeroBl(cfg.hero_bl || '')
+      setHeroRight(cfg.hero_right || '')
+      setHeroFrame(cfg.hero_frame || 'on')
+    })
   }, [])
 
   useEffect(() => {
@@ -122,7 +132,7 @@ export default function App() {
       <motion.div className="glass-rail" style={{ opacity: railOpacity }} aria-hidden="true" />
 
       <motion.div className="hero-chrome" style={{ opacity: heroChromeOpacity }} aria-hidden="true">
-        <div className="hero-frame" />
+        <div className="hero-frame" style={{ display: heroFrame === 'off' ? 'none' : undefined }} />
         <span className="hero-mark tl">+</span>
         <span className="hero-mark tr">+</span>
         <span className="hero-mark bl">+</span>
@@ -131,9 +141,9 @@ export default function App() {
           <span className="hm-name">{profile?.nickname || 'My'}</span>
           <span>Personal Portfolio</span>
         </div>
-        <div className="hero-meta hm-tr">Portfolio — {new Date().getFullYear()}</div>
-        <div className="hero-meta hm-bl">Code · Art · Play</div>
-        <div className="hero-meta hm-right">{profile?.email || ''}</div>
+        <div className="hero-meta hm-tr">{heroTr || `Portfolio — ${new Date().getFullYear()}`}</div>
+        <div className="hero-meta hm-bl">{heroBl || 'Code · Art · Play'}</div>
+        <div className="hero-meta hm-right">{heroRight || profile?.email || ''}</div>
       </motion.div>
 
       <NoiseOverlay />

@@ -48,6 +48,10 @@ export interface SiteConfig {
   gradient_top?: string     // 渐变顶部颜色
   gradient_bottom?: string  // 渐变底部颜色
   bg_image?: string         // 图片背景路径
+  hero_tr?: string          // 右上装饰文字
+  hero_bl?: string          // 左下装饰文字
+  hero_right?: string       // 右侧竖排文字
+  hero_frame?: string       // 边框显示 'on' | 'off'
 }
 
 export async function fetchProfile(): Promise<Profile | null> {

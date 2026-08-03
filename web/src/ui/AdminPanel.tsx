@@ -39,6 +39,10 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [gradTop, setGradTop] = useState('#0a0e16')
   const [gradBottom, setGradBottom] = useState('#20283a')
   const [bgImage, setBgImage] = useState('')
+  const [heroTr, setHeroTr] = useState('')
+  const [heroBl, setHeroBl] = useState('')
+  const [heroRight, setHeroRight] = useState('')
+  const [heroFrame, setHeroFrame] = useState('on')
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -60,6 +64,10 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       setGradTop(c.gradient_top || '#0a0e16')
       setGradBottom(c.gradient_bottom || '#20283a')
       setBgImage(c.bg_image || '')
+      setHeroTr(c.hero_tr || '')
+      setHeroBl(c.hero_bl || '')
+      setHeroRight(c.hero_right || '')
+      setHeroFrame(c.hero_frame || 'on')
     })
   }
 
@@ -126,6 +134,10 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
         bg_image: bgImage,
+        hero_tr: heroTr,
+        hero_bl: heroBl,
+        hero_right: heroRight,
+        hero_frame: heroFrame,
       })
       flash('已保存')
       onSaved()
@@ -222,6 +234,21 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
             <input value={modelPath} onChange={(e) => setModelPath(e.target.value)} />
           </label>
           <input type="file" accept=".glb" onChange={(e) => uploadFile(e, 'model')} />
+
+          <h4>首屏装饰</h4>
+          <div className="adm-bg-modes">
+            <button className={heroFrame === 'on' ? 'on' : ''} onClick={() => setHeroFrame('on')}>显示边框</button>
+            <button className={heroFrame === 'off' ? 'on' : ''} onClick={() => setHeroFrame('off')}>隐藏边框</button>
+          </div>
+          <label>右上角文字（默认 Portfolio — 年份）
+            <input value={heroTr} onChange={(e) => setHeroTr(e.target.value)} placeholder="Portfolio — 2026" />
+          </label>
+          <label>左下角文字（默认 Code · Art · Play）
+            <input value={heroBl} onChange={(e) => setHeroBl(e.target.value)} placeholder="Code · Art · Play" />
+          </label>
+          <label>右侧竖排文字（默认邮箱）
+            <input value={heroRight} onChange={(e) => setHeroRight(e.target.value)} placeholder="email" />
+          </label>
 
           <button className="adm-save" onClick={saveProfile}>保存资料</button>
         </div>
