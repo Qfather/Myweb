@@ -359,14 +359,13 @@ function Post2({ fxType = 'none', fxIntensity = 0.5 }: { fxType?: string; fxInte
   return (
     <EffectComposer multisampling={0} stencilBuffer={false} depthBuffer>
       <Bloom
-        enabled={fxType === 'bloom'}
         key="bloom"
         mipmapBlur
-        intensity={0.3 + fxIntensity * 1.6}
+        intensity={fxType === 'bloom' ? 0.3 + fxIntensity * 1.6 : 0}
         luminanceThreshold={0.7}
         luminanceSmoothing={0.3}
       />
-      <Vignette key="vig" enabled={fxType === 'vignette'} eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxIntensity} />
+      <Vignette key="vig" eskil={false} offset={0.1 + (1 - fxIntensity) * 0.2} darkness={fxType === 'vignette' ? fxIntensity : 0} />
       <Scanline key="scan" density={fxType === 'scanline' ? 0.3 + fxIntensity * 2.2 : 0} />
       <DepthOfField
         key="dof"
