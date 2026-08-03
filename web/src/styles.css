@@ -2116,3 +2116,19 @@ canvas {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* ====== 富文本图片/视频 ====== */
+.tl-html img,
+.wk-card-html img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.5em 0;
+}
+.tl-html iframe,
+.wk-card-html iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 8px;
+  margin: 0.5em 0;
+}
