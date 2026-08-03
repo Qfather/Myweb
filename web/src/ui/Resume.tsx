@@ -20,12 +20,11 @@ const itemV = {
   show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
 }
 
-// 经历 → 履历条目：title 为主题，description 为富文本 HTML
+// 经历 → 履历条目：整个内容是富文本（标题在内容里自己写）
 function expToEntry(exp: Experience, i: number): ResumeEntry {
   return {
     period: `#${String(i + 1).padStart(2, '0')}`,
-    place: exp.title || '经历',
-    html: exp.description || undefined,
+    html: exp.description || `<h1>${exp.title || '经历'}</h1>`,
     link: exp.url || undefined,
   }
 }
@@ -44,9 +43,6 @@ function Entry({ entry, index }: { entry: ResumeEntry; index: number }) {
       <div className="tl-body">
         <motion.div className="tl-period" variants={itemV}>
           {entry.period}
-        </motion.div>
-        <motion.div className="tl-head" variants={itemV}>
-          <h3 className="tl-place">{entry.place}</h3>
         </motion.div>
         {entry.html && (
           <motion.div

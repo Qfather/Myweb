@@ -166,7 +166,11 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   }
 
   async function saveExp() {
-    const body = { title: expDraft.title, description: expDraft.description, url: expDraft.url }
+    // title 从编辑器内容提取纯文本（后端必填）
+    const div = document.createElement('div')
+    div.innerHTML = expDraft.description
+    const title = (div.textContent || '未命名').trim().split('\n')[0].slice(0, 30) || '未命名'
+    const body = { title, description: expDraft.description, url: expDraft.url }
     const r = expDraft.id
       ? await api('PUT', `/admin/favorites/${expDraft.id}`, body)
       : await api('POST', '/admin/favorites', body)
@@ -389,10 +393,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       {tab === 'exps' && (
         <div className="adm-form">
           <h4>{expDraft.id ? '编辑经历' : '添加经历'}</h4>
-          <label>标题
-            <input value={expDraft.title} onChange={(e) => setExpDraft({ ...expDraft, title: e.target.value })} />
-          </label>
-          <label>内容（所见即所得）
+          <label>内容（所见即所得，标题用 H1/H2 自己设置）
             <QuillEditor value={expDraft.description} onChange={(html) => setExpDraft({ ...expDraft, description: html })} />
           </label>
           <label>链接
