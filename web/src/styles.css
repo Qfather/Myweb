@@ -1914,7 +1914,7 @@ canvas {
 /* ====== 左下角社交图标 ====== */
 .social-bar {
   position: fixed;
-  bottom: 24px;
+  bottom: 44px;
   left: 44px;
   z-index: 20;
   display: flex;
