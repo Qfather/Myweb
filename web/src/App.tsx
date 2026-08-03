@@ -179,7 +179,6 @@ export default function App() {
         <span className="hero-mark bl">+</span>
         <span className="hero-mark br">+</span>
         <div className="hero-meta hm-tl">
-          <span className="hm-name">{profile?.nickname || 'My'}</span>
           <span>{heroSub || 'Personal Portfolio'}</span>
         </div>
         <div className="hero-meta hm-tr">{heroTr || `Portfolio — ${new Date().getFullYear()}`}</div>
