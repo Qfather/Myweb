@@ -1656,12 +1656,15 @@ canvas {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(420px, 92vw);
+  width: 40vw;
+  min-width: 360px;
+  max-width: 560px;
   z-index: 80;
   background: #0d1119;
   border-left: 1px solid var(--line);
   box-shadow: -20px 0 60px rgba(0, 0, 0, 0.4);
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px;
 }
 .adm-close {
