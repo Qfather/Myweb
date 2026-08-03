@@ -79,6 +79,8 @@ export default function App() {
     gradTop: '#0a0e16',
     gradBottom: '#20283a',
     bgImage: '',
+    noiseEnabled: true,
+    noiseOpacity: 0.5,
   })
   const { scrollY } = useScroll()
   const worksRef = useRef(null)
@@ -102,6 +104,8 @@ export default function App() {
         gradTop: cfg.gradient_top || '#0a0e16',
         gradBottom: cfg.gradient_bottom || '#20283a',
         bgImage: cfg.bg_image || '',
+        noiseEnabled: cfg.noise_enabled !== 'off',
+        noiseOpacity: cfg.noise_opacity ? parseFloat(cfg.noise_opacity) : 0.5,
       })
     })
   }, [])
@@ -179,7 +183,7 @@ export default function App() {
       {/* 左下角社交图标 */}
       <SocialBar socials={socials} />
 
-      <NoiseOverlay />
+      <NoiseOverlay enabled={preview.noiseEnabled} opacity={preview.noiseOpacity} />
 
       {/* 右上角管理按钮 */}
       <button className="adm-gear" onClick={() => setAdminOpen(true)} title="管理后台" aria-label="管理后台">

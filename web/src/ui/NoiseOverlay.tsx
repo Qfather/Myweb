@@ -99,11 +99,17 @@ function NoisePlane() {
   )
 }
 
-export default function NoiseOverlay() {
+export default function NoiseOverlay({
+  enabled = true,
+  opacity = 0.5,
+}: {
+  enabled?: boolean
+  opacity?: number
+}) {
   // 仅客户端挂载，避免 SSR 不一致（此项目纯 CSR，仍保持一致写法）
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  if (!mounted || !enabled) return null
 
   return (
     <div
@@ -119,7 +125,7 @@ export default function NoiseOverlay() {
       }}
     >
       <Canvas
-        style={{ width: '100%', height: '100%', opacity: CONFIG.opacity, pointerEvents: 'none' }}
+        style={{ width: '100%', height: '100%', opacity, pointerEvents: 'none' }}
         frameloop="demand"
         camera={{ position: [0, 0, 1] }}
         gl={{ alpha: true, antialias: false, powerPreference: 'high-performance' }}

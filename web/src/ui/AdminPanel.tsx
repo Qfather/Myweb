@@ -80,6 +80,8 @@ export default function AdminPanel({
   const [hdrList, setHdrList] = useState<string[]>([])
   const [hdrBrightness, setHdrBrightness] = useState(1)
   const [hdrRotation, setHdrRotation] = useState(0)
+  const [noiseEnabled, setNoiseEnabled] = useState(true)
+  const [noiseOpacity, setNoiseOpacity] = useState(0.5)
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -107,6 +109,8 @@ export default function AdminPanel({
       setHeroFrame(c.hero_frame || 'on')
       setHdrBrightness(c.hdr_brightness ? parseFloat(c.hdr_brightness) : 1)
       setHdrRotation(c.hdr_rotation ? parseFloat(c.hdr_rotation) : 0)
+      setNoiseEnabled(c.noise_enabled !== 'off')
+      setNoiseOpacity(c.noise_opacity ? parseFloat(c.noise_opacity) : 0.5)
     })
     api('GET', '/api/hdr-list').then((r: any) => {
       if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
@@ -174,6 +178,8 @@ export default function AdminPanel({
         hdr_path: hdrPath,
         hdr_brightness: String(hdrBrightness),
         hdr_rotation: String(hdrRotation),
+        noise_enabled: noiseEnabled ? 'on' : 'off',
+        noise_opacity: String(noiseOpacity),
         bg_mode: bgMode,
         gradient_top: gradTop,
         gradient_bottom: gradBottom,
@@ -360,6 +366,30 @@ export default function AdminPanel({
 
       {tab === 'bg' && (
         <div className="adm-form">
+          <h4>噪点</h4>
+          <div className="adm-bg-modes">
+            <button className={noiseEnabled ? 'on' : ''} onClick={() => { setNoiseEnabled(true); onPreview?.({ noiseEnabled: true }) }}>开启</button>
+            <button className={!noiseEnabled ? 'on' : ''} onClick={() => { setNoiseEnabled(false); onPreview?.({ noiseEnabled: false }) }}>关闭</button>
+          </div>
+          {noiseEnabled && (
+            <label>噪点浓度
+              <div className="adm-bright-row">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={Math.round(noiseOpacity * 100)}
+                  onChange={(e) => {
+                    const v = Number(e.target.value) / 100
+                    setNoiseOpacity(v)
+                    onPreview?.({ noiseOpacity: v })
+                  }}
+                />
+                <span>{noiseOpacity.toFixed(1)}</span>
+              </div>
+            </label>
+          )}
+
           <h4>背景模式</h4>
           <div className="adm-bg-modes">
             <button className={bgMode === 'gradient' ? 'on' : ''} onClick={() => { setBgMode('gradient'); onPreview?.({ bgMode: 'gradient' }) }}>渐变背景</button>
