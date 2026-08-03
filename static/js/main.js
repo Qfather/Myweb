@@ -12,6 +12,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // ====== 加载进度条 ======
 const loaderEl=document.getElementById('loader');
@@ -50,11 +51,11 @@ controls.target.set(0, 0.6, 0);
 controls.update();
 
 // ====== 灯光 ======
-scene.add(new THREE.AmbientLight(0x404060, 0.5));
-const ml = new THREE.DirectionalLight(0xffffff, 2.5); ml.position.set(5,8,5); ml.castShadow=true; scene.add(ml);
-const fl = new THREE.DirectionalLight(0x6c5ce7, 0.8); fl.position.set(-3,2,4); scene.add(fl);
-scene.add(new THREE.DirectionalLight(0xfd79a8, 0.4).position.set(0,-2,-5));
-scene.add(new THREE.HemisphereLight(0x6c5ce7, 0x0a0a0f, 0.3));
+scene.add(new THREE.AmbientLight(0x404060, 0.2));
+const ml = new THREE.DirectionalLight(0xffffff, 3.0); ml.position.set(5,8,5); ml.castShadow=true; scene.add(ml);
+const fl = new THREE.DirectionalLight(0x6c5ce7, 0.6); fl.position.set(-3,2,4); scene.add(fl);
+scene.add(new THREE.DirectionalLight(0xfd79a8, 0.3).position.set(0,-2,-5));
+scene.add(new THREE.HemisphereLight(0x6c5ce7, 0x0a0a0f, 0.2));
 
 // ====== 粒子星空 ======
 let particles;
@@ -108,6 +109,14 @@ fg.rotation.x=-Math.PI/2;fg.position.y=-0.6;scene.add(fg);
    tex.mapping=THREE.EquirectangularReflectionMapping;
    scene.background=tex;
    scene.environment=tex;
+  }else{
+   // HDR 失败 → 用 RoomEnvironment 生成环境反射，保证 PBR 材质质感
+   try{
+    const pmrem=new THREE.PMREMGenerator(renderer);
+    const envTex=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+    scene.environment=envTex;
+    console.log('已使用 RoomEnvironment 环境反射');
+   }catch(e){console.warn('RoomEnvironment 失败:',e.message);}
   }
   setLoadProgress(100);
   setTimeout(hideLoader,200);
@@ -151,6 +160,7 @@ async function loadModel(url){
   modelGroup=m;scene.add(modelGroup);
   extractCamerasFromGLB(m);
   setupAnimations(gltf,m);
+  findEyes(m);
   // 保存动画名到服务器
   if(gltf.animations&&gltf.animations.length>0){
    const names=gltf.animations.map(a=>a.name||'未命名');
@@ -192,27 +202,81 @@ function playAnimation(animIdx){
  }
  action.reset();
  // 立即求值到第0帧
- action.time=0;
- action.play();
+ action.time=0; action.play();
  mixer.update(0);
  // 多帧循环动画需要持续播放，单帧只需一帧
  if(!hasMultipleFrames){mixer.update(0);}
  return hasMultipleFrames; // 返回是否循环动画
 }
 
+// ====== 眼球跟随鼠标 ======
+let eyeL=null,eyeR=null;
+let eyeLBase=new THREE.Euler(),eyeRBase=new THREE.Euler();
+let mouseNX=0,mouseNY=0;         // 归一化鼠标坐标 -1~1
+let eyeCurX=0,eyeCurY=0;         // 当前平滑后的视线偏移
+
+function findEyes(root){
+ eyeL=null;eyeR=null;
+ root.traverse(n=>{
+  if(!eyeL&&(n.name||'').toLowerCase()==='eye_l')eyeL=n;
+  if(!eyeR&&(n.name||'').toLowerCase()==='eye_r')eyeR=n;
+ });
+ if(eyeL)eyeLBase.copy(eyeL.rotation);
+ if(eyeR)eyeRBase.copy(eyeR.rotation);
+ if(eyeL||eyeR)console.log('眼球节点:',eyeL?'eye_l ✔':'',eyeR?'eye_r ✔':'');
+}
+
+window.addEventListener('mousemove',(e)=>{
+ mouseNX=(e.clientX/window.innerWidth)*2-1;
+ mouseNY=-(e.clientY/window.innerHeight)*2+1;
+});
+
+function updateEyes(){
+ if(!eyeL&&!eyeR)return;
+ // 平滑跟随，上下与左右同幅度
+ const maxAngle=0.5;
+ eyeCurX+=(mouseNX*maxAngle-eyeCurX)*0.08;
+ eyeCurY+=(mouseNY*maxAngle-eyeCurY)*0.08;
+ // 上下用 -eyeCurY：鼠标向上→翻白眼
+ if(eyeL){eyeL.rotation.set(eyeLBase.x-eyeCurY,eyeLBase.y+eyeCurX,eyeLBase.z);}
+ if(eyeR){eyeR.rotation.set(eyeRBase.x-eyeCurY,eyeRBase.y+eyeCurX,eyeRBase.z);}
+}
+
 function extractCamerasFromGLB(root){
  const cams=[];
  root.traverse(n=>{
-  if(n.isCamera){
-   const wp=new THREE.Vector3();n.getWorldPosition(wp);
-   const d=new THREE.Vector3(0,0,-1),wq=new THREE.Quaternion();n.getWorldQuaternion(wq);d.applyQuaternion(wq);
+  // 兼容两种情况：节点本身是相机 / 节点带 .camera 子对象
+  const camNode=n.isCamera?n:(n.camera?n:null);
+  if(camNode){
+   const wp=new THREE.Vector3();camNode.getWorldPosition(wp);
+   const d=new THREE.Vector3(0,0,-1),wq=new THREE.Quaternion();camNode.getWorldQuaternion(wq);d.applyQuaternion(wq);
    const t=wp.clone().add(d.multiplyScalar(3));
    cams.push({pos:[wp.x,wp.y,wp.z],target:[t.x,t.y,t.z],animIdx:0});
   }
  });
- if(cams.length>0){CAMERA_PRESETS=cams;currentViewIndex=0;}
+ if(cams.length>0){
+  CAMERA_PRESETS=cams;currentViewIndex=0;
+  // 立即应用第一个摄像机的视角为初始视角
+  const p=cams[0];
+  camera.position.set(p.pos[0],p.pos[1],p.pos[2]);
+  lookTarget.set(p.target[0],p.target[1],p.target[2]);
+  controls.target.copy(lookTarget);
+  camera.lookAt(lookTarget);
+  controls.update();
+  console.log('GLB摄像机 pos=',p.pos,'target=',p.target);
+ }
 }
-(async()=>{try{const r=await(await fetch('/api/config')).json();if(r.code===0&&r.data?.model_path)await loadModel(r.data.model_path);}catch{}})();
+(async()=>{
+ try{
+  const r=await(await fetch('/api/config')).json();
+  let mp=r.code===0?(r.data?.model_path||''):'';
+  if(!mp){
+   // fallback：尝试 static/models/ 下的 model.glb
+   mp='/static/models/model.glb';
+  }
+  await loadModel(mp);
+ }catch{}
+})();
 
 // ====== 镜头预设 ======
 let CAMERA_PRESETS=[
@@ -387,7 +451,7 @@ window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.inn
 const clock=new THREE.Clock();
 function animate(){
  const t=clock.getElapsedTime();
- if(modelGroup&&!mixer){modelGroup.position.y=0.6+Math.sin(t*0.5)*0.1;modelGroup.rotation.y=t*0.15;}
+ if(modelGroup){}
  particles.rotation.y=t*0.02;particles.rotation.x=Math.sin(t*0.01)*0.05;
  if(isTransitioning){transitionProgress+=0.025;if(transitionProgress>=1){transitionProgress=1;isTransitioning=false;}
   const p=transitionProgress<0.5?4*transitionProgress*transitionProgress*transitionProgress:1-Math.pow(-2*transitionProgress+2,3)/2;
@@ -395,6 +459,7 @@ function animate(){
  // 循环动画持续更新
  if(mixer&&currentAnimLooping){mixer.update(clock.getDelta());}
  else if(mixer){mixer.update(0);}
+ updateEyes(); // 眼球跟随鼠标（在动画更新之后，避免被骨骼动画覆盖）
  camera.lookAt(lookTarget);controls.update();renderer.render(scene,camera);requestAnimationFrame(animate);
 }
 animate();

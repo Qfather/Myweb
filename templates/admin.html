@@ -537,6 +537,13 @@ async function uploadFile(input, targetId) {
     const res = await resp.json();
     if (res.code === 0) {
         document.getElementById(targetId).value = res.data.url;
+        // 上传GLB模型后自动保存，无需再点「应用」
+        if (targetId === 'edit-model-path') {
+            const r2 = await api('PUT', '/admin/config', { model_path: res.data.url });
+            if (r2.code === 0) showMsg('模型已上传并应用！刷新主页查看');
+            else showMsg('上传成功，但保存配置失败', true);
+            return;
+        }
         showMsg('上传成功');
     } else {
         showMsg('上传失败: ' + res.message, true);

@@ -30,20 +30,29 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
-    # 首页路由
+    # 首页路由 - 托管 React 构建产物 web/dist/
+    web_dist = os.path.join(app.root_path, 'web', 'dist')
+
     @app.route('/')
     def index():
+        if os.path.exists(os.path.join(web_dist, 'index.html')):
+            return send_from_directory(web_dist, 'index.html')
+        # 兜底：无构建产物时用旧版静态首页
         return send_from_directory(os.path.join(app.root_path, 'templates'), 'index.html')
 
     @app.route('/admin/')
     def admin_page():
         return send_from_directory(os.path.join(app.root_path, 'templates'), 'admin.html')
 
-    # 静态资产目录 Assets/icons/, Assets/world/ 等
+    # 前端构建资源 /assets/* （vite 产物） 与 资产目录 Assets/* 共用路径，按存在性分流
     assets_path = os.path.join(app.root_path, 'Assets')
-    if os.path.exists(assets_path):
+    dist_assets = os.path.join(web_dist, 'assets')
+    if os.path.exists(assets_path) or os.path.exists(dist_assets):
         @app.route('/assets/<path:filename>')
         def serve_assets(filename):
+            # 优先前端构建产物（js/css），其次资产目录（hdr/图标等）
+            if os.path.exists(os.path.join(dist_assets, filename)):
+                return send_from_directory(dist_assets, filename)
             return send_from_directory(assets_path, filename)
 
     # 创建表
