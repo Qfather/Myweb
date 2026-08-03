@@ -1896,3 +1896,17 @@ canvas {
 .adm-color-row input[type='text'] {
   flex: 1;
 }
+
+/* ====== 下拉选择 ====== */
+.adm-select {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #141a24;
+  color: var(--ink);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+}
+.adm-select:focus { border-color: #ffd9b3; }
+.adm-select option { background: #141a24; color: var(--ink); }

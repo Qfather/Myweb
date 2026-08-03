@@ -43,6 +43,7 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
   const [heroBl, setHeroBl] = useState('')
   const [heroRight, setHeroRight] = useState('')
   const [heroFrame, setHeroFrame] = useState('on')
+  const [hdrList, setHdrList] = useState<string[]>([])
 
   const [msg, setMsg] = useState('')
   const [expDraft, setExpDraft] = useState({ id: 0, title: '', description: '', url: '' })
@@ -68,6 +69,9 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
       setHeroBl(c.hero_bl || '')
       setHeroRight(c.hero_right || '')
       setHeroFrame(c.hero_frame || 'on')
+    })
+    api('GET', '/api/hdr-list').then((r: any) => {
+      if (r.code === 0 && Array.isArray(r.data)) setHdrList(r.data)
     })
   }
 
@@ -294,10 +298,14 @@ export default function AdminPanel({ onSaved }: { onSaved: () => void }) {
           {bgMode === 'hdr' && (
             <>
               <h4>HDR 环境贴图</h4>
-              <label>HDR 路径
-                <input value={hdrPath} onChange={(e) => setHdrPath(e.target.value)} />
+              <label>选择 HDR 文件
+                <select value={hdrPath} onChange={(e) => setHdrPath(e.target.value)} className="adm-select">
+                  <option value="">-- 选择 --</option>
+                  {hdrList.map((f) => (
+                    <option key={f} value={`/assets/hdr/${f}`}>{f}</option>
+                  ))}
+                </select>
               </label>
-              <input type="file" accept=".hdr,.exr,.png" onChange={(e) => uploadFile(e, 'hdr')} />
             </>
           )}
 
