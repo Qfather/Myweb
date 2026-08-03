@@ -165,9 +165,9 @@ export default function App() {
             />
             <motion.aside
               className="adm-drawer"
-              initial={{ x: '100%' }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <button className="adm-close" onClick={() => setAdminOpen(false)}>✕</button>
