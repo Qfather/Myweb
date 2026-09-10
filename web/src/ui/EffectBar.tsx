@@ -11,7 +11,8 @@ const FX_ITEMS = [
   { id: 'chromatic', name: '色差', file: '色差.png' },
   { id: 'pixel', name: '像素化', file: '像素.png' },
 ]
-const ICON_PATH = '/assets/icons/effect/'
+// 效果图标：路径带 BASE_URL 前缀，本地(/)与静态展示站(./)均可正确解析
+const ICON_PATH = `${import.meta.env.BASE_URL}assets/icons/effect/`
 
 // 页面顶部居中的效果图标：悬停放大并在图标中心显示名字，点击切换；下方滑块调强度
 export default function EffectBar({

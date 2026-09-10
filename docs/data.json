@@ -1,0 +1,46 @@
+{
+ "generated_at": "2026-09-10T15:05:01",
+ "profile": {
+  "id": 1,
+  "nickname": "曲爸爸",
+  "avatar": "",
+  "bio": "这是一一个测试页耶耶耶！！！！！！！！！！！！\n★",
+  "email": "ke_777@163.com",
+  "social_links": "[{\"name\": \"微信\", \"icon\": \"./assets/icons/微信.png\", \"type\": \"wechat\", \"qrcode\": \"\"}, {\"name\": \"GitHub\", \"icon\": \"./assets/icons/github.png\", \"url\": \"https://github.com/Qfather\", \"type\": \"link\", \"qrcode\": \"\"}, {\"name\": \"哔哩哔哩\", \"icon\": \"./assets/icons/哔哩哔哩.png\", \"url\": \"https://space.bilibili.com/11101168\", \"type\": \"link\", \"qrcode\": \"\"}]",
+  "updated_at": "2026-07-30 08:02:16.393314"
+ },
+ "experiences": [
+  {
+   "id": 1,
+   "title": "我的意思意思✅ 垂直居中 — 文本在面板正中✅ 灰色分隔线 ",
+   "description": "<h1><strong>我的意思意思</strong></h1><p>✅ 垂直居中 — 文本在面板正中</p><p>✅ 灰色分隔线 — 标题和内容之间有一条细线</p><p>✅ 编辑可设颜色和大小 — 新增取色器+大小下拉菜单666</p>",
+   "url": "",
+   "icon": "",
+   "text_color": "#0000f0",
+   "text_size": "32px",
+   "sort_order": 0,
+   "created_at": "2026-07-30 08:03:10.952500"
+  }
+ ],
+ "works": [],
+ "config": {
+  "hdr_path": "./media/hdr/室内.exr",
+  "hdr_brightness": "0.8",
+  "model_path": "./media/uploads/me_test.glb",
+  "camera_presets": "[]",
+  "bg_mode": "hdr",
+  "gradient_top": "#0a0e16",
+  "gradient_bottom": "#5872da",
+  "bg_image": "",
+  "hero_tr": "",
+  "hero_bl": "",
+  "hero_right": "ke_777@163.com",
+  "hero_frame": "on",
+  "hdr_rotation": "300",
+  "noise_enabled": "on",
+  "noise_opacity": "0.5",
+  "fx_type": "noise",
+  "fx_intensity": "0.55",
+  "hero_sub": ""
+ }
+}

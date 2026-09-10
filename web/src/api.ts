@@ -1,8 +1,21 @@
 // Flask API 客户端
+// 本地：请求 /api/*；静态展示站（GitHub Pages）：读 ./data.json（由 export_static.py 生成）
 
 async function get<T = any>(path: string): Promise<T> {
   const r = await fetch(path)
   return r.json()
+}
+
+// 静态展示模式：docs/index.html 注入 window.__STATIC__ = true
+const IS_STATIC =
+  typeof window !== 'undefined' && (window as any).__STATIC__ === true
+
+let staticData: any = null
+async function loadStatic(): Promise<any> {
+  if (staticData) return staticData
+  const r = await fetch('./data.json')
+  staticData = await r.json()
+  return staticData
 }
 
 export interface Profile {
@@ -62,6 +75,10 @@ export interface SiteConfig {
 
 export async function fetchProfile(): Promise<Profile | null> {
   try {
+    if (IS_STATIC) {
+      const d = await loadStatic()
+      return d.profile ?? null
+    }
     const r = await get<{ code: number; data: Profile }>('/api/profile')
     return r.code === 0 ? r.data : null
   } catch {
@@ -71,6 +88,10 @@ export async function fetchProfile(): Promise<Profile | null> {
 
 export async function fetchExperiences(): Promise<Experience[]> {
   try {
+    if (IS_STATIC) {
+      const d = await loadStatic()
+      return d.experiences ?? []
+    }
     const r = await get<{ code: number; data: Experience[] }>('/api/favorites')
     return r.code === 0 ? r.data : []
   } catch {
@@ -80,6 +101,10 @@ export async function fetchExperiences(): Promise<Experience[]> {
 
 export async function fetchWorks(): Promise<Work[]> {
   try {
+    if (IS_STATIC) {
+      const d = await loadStatic()
+      return d.works ?? []
+    }
     const r = await get<{ code: number; data: Work[] }>('/api/works')
     return r.code === 0 ? r.data : []
   } catch {
@@ -89,6 +114,10 @@ export async function fetchWorks(): Promise<Work[]> {
 
 export async function fetchConfig(): Promise<SiteConfig> {
   try {
+    if (IS_STATIC) {
+      const d = await loadStatic()
+      return d.config ?? {}
+    }
     const r = await get<{ code: number; data: SiteConfig }>('/api/config')
     return r.code === 0 ? r.data : {}
   } catch {
